@@ -1,29 +1,31 @@
-import React, { useState, useRef } from "react";
+import { useRouter } from "expo-router";
+import React, { useRef, useState } from "react";
 import {
-  View,
-  StyleSheet,
+  Animated,
   Dimensions,
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Animated,
+  SafeAreaView,
+  StyleSheet,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import NextButton from "../../components/NextButton";
-import Card from "../../components/Card";
-import Bullets from "../../components/Bullets";
+import Bullets from "../components/Bullets";
+import Card from "../components/Card";
+import NextButton from "../components/NextButton";
 
 const { width, height } = Dimensions.get("window");
 
 const images = [
-  require("../../assets/images/image1.jpg"),
-  require("../../assets/images/image1.jpg"),
+  require("../assets/images/image1.jpg"),
+  require("../assets/images/image1.jpg"),
 ];
 
-const OnBoarding = ({ navigation }: any) => {
+const OnBoarding = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
+  const router = useRouter();
 
   const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -32,7 +34,7 @@ const OnBoarding = ({ navigation }: any) => {
 
   const handleNext = () => {
     if (currentIndex === images.length - 1) {
-      navigation.navigate("Map");
+      router.push("/modulos");
     } else {
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
       setCurrentIndex((prevIndex) => prevIndex + 1);

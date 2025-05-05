@@ -1,197 +1,87 @@
-import { Session } from "@supabase/supabase-js";
-import React, { useEffect, useState } from "react";
-import { Image, StatusBar, StyleSheet } from "react-native";
-import { supabase } from "../lib/supabase";
-import Exercicios from "./(tabs)/exercicios";
-import Home from "./(tabs)/home";
-import Niveis from "./(tabs)/niveis";
-import PreExercicio from "./(tabs)/pre-exercicio";
-import OnBoarding from "./(tabs)/tutorial";
+import { useRouter } from "expo-router";
+import React from "react";
+import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { NavigationContainer, NavigationIndependentTree } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { Provider as PaperProvider } from "react-native-paper";
-import Map from "./(tabs)/modulos";
-
-export type RootStackParamList = {
-  Home: undefined;
-  OnBoarding: undefined;
-  Auth: undefined;
-  Account: undefined;
-  Map: undefined;
-  Niveis: undefined;
-  Exercicios: undefined;
-  PreExercicio: undefined;
+export const options = {
+  headerShown: false,
 };
 
-const Stack = createStackNavigator<RootStackParamList>();
+const Index = () => {
+  const router = useRouter();
 
-export default function App() {
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-  }, []);
+  const handleStart = () => {
+    router.push("/onboarding");
+  };
 
   return (
-    <PaperProvider>
-      <NavigationIndependentTree>
-      <NavigationContainer>
-        <StatusBar backgroundColor="#013974" barStyle="light-content" />
-        <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen
-            name="Home"
-            component={Home}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="OnBoarding"
-            component={OnBoarding}
-            options={{
-              headerStyle: {
-                backgroundColor: "#013974",
-              },
-              headerTintColor: "#fff",
-              headerTitleAlign: "center",
-              headerRight: () => (
-                <Image
-                  source={require("../assets/images/logo.png")}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    resizeMode: "contain",
-                    marginRight: 10,
-                    marginTop: 5,
-                  }}
-                />
-              ),
-              headerTitle: "Boas Vindas",
-              headerBackTitle: "",
-            }}
-          />
-          <Stack.Screen
-            name="Map"
-            component={Map}
-            options={{
-              headerStyle: {
-                backgroundColor: "#013974",
-              },
-              headerTintColor: "#fff",
-              headerTitleAlign: "center",
-              headerRight: () => (
-                <Image
-                  source={require("../assets/images/logo.png")}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    resizeMode: "contain",
-                    marginRight: 10,
-                    marginTop: 5,
-                  }}
-                />
-              ),
-              headerTitle: "Módulos",
-              headerBackTitle: "",
-            }}
-          />
-          <Stack.Screen
-            name="Niveis"
-            component={Niveis}
-            options={{
-              headerStyle: {
-                backgroundColor: "#013974",
-              },
-              headerTintColor: "#fff",
-              headerTitleAlign: "center",
-              headerRight: () => (
-                <Image
-                  source={require("../assets/images/logo.png")}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    resizeMode: "contain",
-                    marginRight: 10,
-                    marginTop: 5,
-                  }}
-                />
-              ),
-              headerTitle: "Níveis",
-              headerBackTitle: "",
-            }}
-          />
-          <Stack.Screen
-            name="Exercicios"
-            component={Exercicios}
-            options={{
-              headerStyle: {
-                backgroundColor: "#013974",
-              },
-              headerTintColor: "#fff",
-              headerTitleAlign: "center",
-              headerRight: () => (
-                <Image
-                  source={require("../assets/images/logo.png")}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    resizeMode: "contain",
-                    marginRight: 10,
-                    marginTop: 5,
-                  }}
-                />
-              ),
-              headerTitle: "Exercícios",
-              headerBackTitle: "",
-            }}
-          />
-          <Stack.Screen
-            name="PreExercicio"
-            component={PreExercicio}
-            options={{
-              headerStyle: {
-                backgroundColor: "#013974",
-              },
-              headerTintColor: "#fff",
-              headerTitleAlign: "center",
-              headerRight: () => (
-                <Image
-                  source={require("../assets/images/logo.png")}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    resizeMode: "contain",
-                    marginRight: 10,
-                    marginTop: 5,
-                  }}
-                />
-              ),
-              headerTitle: "Explicação",
-              headerBackTitle: "",
-            }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-      </NavigationIndependentTree>
-    </PaperProvider>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <View style={styles.topSection}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("../assets/images/logo.png")}
+              style={styles.logo}
+            />
+          </View>
+          <Text style={styles.title}>Cobalto</Text>
+        </View>
+        <View style={styles.bottomSection}>
+          <TouchableOpacity style={styles.button} onPress={handleStart}>
+            <Text style={styles.buttonText}>Começar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: "#F7F9FA",
   },
-  text: {
+  topSection: {
+    backgroundColor: "#013974",
+    borderBottomLeftRadius: 120,
+    borderBottomRightRadius: 120,
+    alignItems: "center",
+    paddingTop: 40,
+    paddingBottom: 40,
+  },
+  logoContainer: {
+    backgroundColor: "#013974",
+    borderRadius: 100,
+    padding: 24,
+    marginBottom: 16,
+  },
+  logo: {
+    marginTop: 150,
+    width: 200,
+    height: 200,
+  },
+  title: {
+    color: "#fff",
+    fontSize: 32,
+    fontWeight: "bold",
+    marginTop: 8,
+  },
+  bottomSection: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    backgroundColor: "#013974",
+    paddingVertical: 16,
+    paddingHorizontal: 48,
+    borderRadius: 18,
+    marginTop: 24,
+  },
+  buttonText: {
+    color: "#fff",
     fontSize: 20,
-    color: "#FFF",
+    fontWeight: "600",
   },
 });
+
+export default Index;

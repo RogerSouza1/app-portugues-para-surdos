@@ -1,10 +1,12 @@
+import { useRouter } from "expo-router";
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const Niveis = ({ navigation }: any) => {
+const Niveis = () => {
+  const router = useRouter();
+
   const handleNavigateToPreExercicios = () => {
-    navigation.navigate("PreExercicio");
+    router.push("/pre-exercicios");
   };
 
   return (
@@ -13,7 +15,7 @@ const Niveis = ({ navigation }: any) => {
         <Text style={styles.title}>Tela de Níveis</Text>
 
         <TouchableOpacity style={styles.button} onPress={handleNavigateToPreExercicios}>
-          <Text style={styles.buttonText}>Ir para Pré Exercicios</Text>
+          <Text style={styles.buttonText}>Ir para Pré Exercícios</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -1,11 +1,13 @@
+import { useRouter } from "expo-router";
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import NextButton from "../../components/NextButton";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import NextButton from "../components/NextButton";
 
-const PreExercicio = ({ navigation }: any) => {
+const PreExercicio = () => {
+  const router = useRouter();
+
   const handleNavigateToExercicios = () => {
-    navigation.navigate("Exercicios"); 
+    router.push("/exercicios");
   };
 
   return (

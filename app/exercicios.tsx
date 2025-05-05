@@ -1,20 +1,22 @@
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
+  SafeAreaView,
   StyleSheet,
+  Text,
   TouchableOpacity,
   Vibration,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import ImageExercicio from "../../components/ImageExercicio";
-import NextButton from "../../components/NextButton";
+import ImageExercicio from "../components/ImageExercicio";
+import NextButton from "../components/NextButton";
 
 const Exercicios = () => {
   const correctWord = "Andressa";
   const options = ["Luiza", "Andressa", "Jojo", "Paola"];
 
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleWordPress = (word: string) => {
     setSelectedWord(word);
@@ -24,6 +26,7 @@ const Exercicios = () => {
     if (selectedWord === correctWord) {
       Vibration.vibrate([0, 200, 100, 200]);
       alert("Correto!");
+      //router.push("/proxima-tela"); 
     } else {
       Vibration.vibrate(100);
       alert("Tente novamente!");
@@ -32,7 +35,7 @@ const Exercicios = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ImageExercicio image={require("../../assets/images/image1.jpg")} />
+      <ImageExercicio image={require("../assets/images/image1.jpg")} />
 
       <View style={styles.phraseContainer}>
         <Text style={styles.phrase}>
@@ -56,10 +59,7 @@ const Exercicios = () => {
         ))}
       </View>
 
-      <NextButton
-        onPress={handleCheck}
-        direction="right"
-      />
+      <NextButton onPress={handleCheck} direction="right" />
     </SafeAreaView>
   );
 };

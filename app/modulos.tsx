@@ -1,12 +1,13 @@
-import React, {useState, useEffect} from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Image } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { buscarModulo } from "../../services/supabase-query";
-import ModuloCard, { Modulo } from "../../components/ModuloCard";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import ModuloCard from "../components/ModuloCard";
+import { buscarModulo } from "../services/supabase-query";
 
-const Map = ({ navigation }: any) => {
+const Modulos = () => {
   const [modulos, setModulos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadModulos() {
@@ -23,7 +24,7 @@ const Map = ({ navigation }: any) => {
   }, []);
 
   const handleNavigateToLevels = () => {
-    navigation.navigate("Niveis"); 
+    router.push("/niveis"); 
   };
 
   return (
@@ -35,11 +36,11 @@ const Map = ({ navigation }: any) => {
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <FlatList
-              data={modulos}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => <ModuloCard modulo={item} />}
-              contentContainerStyle={styles.listContainer}
-            />
+            data={modulos}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => <ModuloCard modulo={item} />}
+            contentContainerStyle={styles.listContainer}
+          />
         )}
 
         <TouchableOpacity style={styles.rectangle} onPress={handleNavigateToLevels}>
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
   listContainer: {
     marginTop: 20,
     alignItems: "center",
-    width: "100%"
+    width: "100%",
   },
   userItem: {
     fontSize: 16,
@@ -92,8 +93,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
     width: "100%",
-    textAlign: "center"
+    textAlign: "center",
   },
 });
 
-export default Map;
+export default Modulos;
