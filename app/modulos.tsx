@@ -1,21 +1,34 @@
-import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+} from "react-native";
+
 import ModuloCard from "../components/ModuloCard";
 import { buscarModulo } from "../services/supabase-query";
 
 const Modulos = () => {
   const [modulos, setModulos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     async function loadModulos() {
       try {
         const data = await buscarModulo();
-        setModulos(data);
+        const mappedData = data.map((modulo: any) => ({
+          id: modulo.id,
+          tema: modulo.tema,
+          qtd_aulas: modulo.qtd_aulas || 9,
+          icone_url: modulo.icone_url,
+          cor: modulo.cor || "#003f83",
+        }));
+        setModulos(mappedData);
       } catch (error: any) {
-        console.error("Erro ao buscar modulos:", error);
+        console.error("Erro ao buscar módulos:", error);
       } finally {
         setLoading(false);
       }
@@ -23,31 +36,32 @@ const Modulos = () => {
     loadModulos();
   }, []);
 
-  const handleNavigateToLevels = () => {
-    router.push("/niveis"); 
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Tela de Mapa</Text>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#013974" />
 
-        {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
-          <FlatList
-            data={modulos}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <ModuloCard modulo={item} />}
-            contentContainerStyle={styles.listContainer}
-          />
-        )}
-
-        <TouchableOpacity style={styles.rectangle} onPress={handleNavigateToLevels}>
-          <Text style={styles.rectangleText}>Ir para Níveis</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      <View style={styles.headerBackground} />
+      
+      <Text style={styles.headerTitle}>Módulos</Text>
+      <View style={styles.background}>
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          color="#003f83"
+          style={{ marginTop: 150 }}
+        />
+      ) : (
+        <FlatList
+          data={modulos}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => <ModuloCard modulo={item} />}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+        />
+      )}
+    </View>
+    </View>
   );
 };
 
@@ -55,46 +69,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F7F9FA",
-    justifyContent: "center",
-    alignItems: "center",
   },
-  content: {
-    alignItems: "center",
-    paddingHorizontal: 20,
+  headerBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 140,
+    backgroundColor: "#013974", 
+    zIndex: 1,
   },
-  title: {
-    fontSize: 24,
+  headerTitle: {
+    fontSize: 34,
     fontWeight: "bold",
-    color: "#013974",
-    marginBottom: 20,
-  },
-  rectangle: {
-    width: 200,
-    height: 60,
-    backgroundColor: "#013974",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  rectangleText: {
     color: "#FFF",
-    fontSize: 18,
-    fontWeight: "bold",
+    marginTop: 30,
+    marginBottom: 30,
+    marginLeft: 25,
+    zIndex: 2,
   },
   listContainer: {
-    marginTop: 20,
-    alignItems: "center",
-    width: "100%",
+    paddingTop: 30,
+    paddingBottom: 120,
   },
-  userItem: {
-    fontSize: 16,
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    width: "100%",
-    textAlign: "center",
-  },
+  background: {
+    backgroundColor: "#F7F9FA",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    zIndex: 3
+  }
 });
 
 export default Modulos;

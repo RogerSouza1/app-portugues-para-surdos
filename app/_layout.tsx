@@ -42,7 +42,8 @@ export default function RootLayout() {
         <Stack.Screen name="niveis"     options={{ title: 'Níveis' }} />
         <Stack.Screen name="pre-exercicios" options={{ title: 'Pré-Exercício' }} />
         <Stack.Screen name="exercicios" options={{ title: 'Exercícios' }} />
-        <Stack.Screen name="modulos"        options={{ title: 'Módulos' }} />
+        <Stack.Screen name="modulos"        options={{ title: '' }} />
+        <Stack.Screen name="niveis/[id]"        options={{ title: '' }} />
       </Stack>
     </PaperProvider>
   );
