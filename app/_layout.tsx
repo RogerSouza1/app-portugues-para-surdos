@@ -20,7 +20,8 @@ export default function RootLayout() {
         screenOptions={{
           headerStyle: { backgroundColor: '#013974' },    
           headerTintColor: '#fff',                            
-          headerTitleAlign: 'center',                         
+          headerTitleAlign: 'center',
+          headerBackButtonDisplayMode: 'minimal',                        
           headerRight: () => (
             <View style={{ paddingRight: 16 }}>
               <Image

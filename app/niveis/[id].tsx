@@ -48,7 +48,7 @@ const Niveis = () => {
       <FlatList
         data={exercicios}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <LevelCard level={item} />}
+        renderItem={({ item }) => <LevelCard nivel={item} />}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={

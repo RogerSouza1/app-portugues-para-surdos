@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  StatusBar,
   StyleSheet,
   Text,
   View,
-  StatusBar,
 } from "react-native";
 
 import ModuloCard from "../components/ModuloCard";
-import { buscarModulo } from "../services/supabase-query";
+import { buscarModulo, contarExercicios } from "../services/supabase-query";
 
 const Modulos = () => {
   const [modulos, setModulos] = useState<any[]>([]);
@@ -19,13 +19,18 @@ const Modulos = () => {
     async function loadModulos() {
       try {
         const data = await buscarModulo();
-        const mappedData = data.map((modulo: any) => ({
-          id: modulo.id,
-          tema: modulo.tema,
-          qtd_aulas: modulo.qtd_aulas || 9,
-          icone_url: modulo.icone_url,
-          cor: modulo.cor || "#003f83",
-        }));
+        const mappedData = await Promise.all(
+          data.map(async (modulo: any) => {
+            const qtd_aulas = await contarExercicios(modulo.id);
+            return {
+              id: modulo.id,
+              tema: modulo.tema,
+              qtd_aulas: qtd_aulas,
+              icone_url: modulo.icone_url,
+              cor: "#003f83",
+            };
+          })
+        );
         setModulos(mappedData);
       } catch (error: any) {
         console.error("Erro ao buscar módulos:", error);
@@ -39,28 +44,26 @@ const Modulos = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#013974" />
-
       <View style={styles.headerBackground} />
-      
       <Text style={styles.headerTitle}>Módulos</Text>
       <View style={styles.background}>
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="#003f83"
-          style={{ marginTop: 150 }}
-        />
-      ) : (
-        <FlatList
-          data={modulos}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <ModuloCard modulo={item} />}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-        />
-      )}
-    </View>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color="#003f83"
+            style={{ marginTop: 150 }}
+          />
+        ) : (
+          <FlatList
+            data={modulos}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => <ModuloCard modulo={item} />}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+          />
+        )}
+      </View>
     </View>
   );
 };

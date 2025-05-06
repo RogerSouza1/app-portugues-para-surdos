@@ -3,16 +3,16 @@ import { TouchableOpacity, View, Text, StyleSheet, Image } from "react-native";
 import { useRouter } from "expo-router";
 
 interface LevelCardProps {
-  level: any;
+  nivel: any;
 }
 
-const LevelCard: React.FC<LevelCardProps> = ({ level }) => {
+const LevelCard: React.FC<LevelCardProps> = ({ nivel }) => {
   const router = useRouter();
 
   const handlePress = () => {
     router.push({
       pathname: "../pre-exercicios/[id]",
-      params: { id: level.id.toString() }
+      params: { id: nivel.id.toString() }
     });
   };
 
@@ -23,7 +23,7 @@ const LevelCard: React.FC<LevelCardProps> = ({ level }) => {
       activeOpacity={0.8}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>{level.titulo}</Text>
+        <Text style={styles.title}>{nivel.nome}</Text>
         <Image
           source={require("../assets/images/play.png")}
           style={styles.playIcon}

@@ -17,6 +17,7 @@
     "@react-navigation/elements": "^2.3.8",
     "@rneui/themed": "^4.0.0-rc.8",
     "@supabase/supabase-js": "^2.49.4",
+    "app-portugues-para-surdos": "file:",
     "expo": "^53.0.7",
     "expo-blur": "~14.1.4",
     "expo-constants": "~17.1.5",

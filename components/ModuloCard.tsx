@@ -3,9 +3,9 @@ import { TouchableOpacity, View, Text, StyleSheet, Image } from "react-native";
 import { useRouter } from "expo-router";
 
 interface Modulo {
-  id: number;
+  id: string;
   tema: string;
-  qtd_aulas: number;
+  qtd_aulas?: number;
   icone_url: string;
   cor: string;
 }
@@ -20,7 +20,7 @@ const ModuloCard: React.FC<ModuloCardProps> = ({ modulo }) => {
   const handlePress = () => {
     router.push({
       pathname: "/niveis/[id]" as never,
-      params: { id: modulo.id.toString() }
+      params: { id: modulo.id }
     });
   };
 

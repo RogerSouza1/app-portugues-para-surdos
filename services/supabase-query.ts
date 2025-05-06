@@ -12,9 +12,18 @@ export async function buscarExercicios(modulo_uuid: string) {
   const { data, error } = await supabase
     .from('exercicio')
     .select('*')
-    .eq('modulo', modulo_uuid);
+    .eq('id_modulo', modulo_uuid);
   if (error) throw error;
   return data;
+}
+
+export async function contarExercicios(modulo_uuid: string) {
+  const { count, error } = await supabase
+    .from('exercicio')
+    .select('*', { count: 'exact', head: true })
+    .eq('id_modulo', modulo_uuid);
+  if (error) throw error;
+  return count;
 }
 
 export async function buscarAlternativas(exercicio_uuid: string) {
