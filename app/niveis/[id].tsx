@@ -10,19 +10,24 @@ import {
 } from "react-native";
 import LevelCard from "../../components/LevelCard";
 import { buscarExercicios } from "../../services/supabase-query";
+import LoadingError from "@/components/LoadingError";
 
 const Niveis = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [exercicios, setExercicios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     async function loadExercicios() {
       try {
+        setError(false)
         const data = await buscarExercicios(id);
         setExercicios(data);
       } catch (error) {
         console.error("Erro ao carregar níveis:", error);
+        setError(true);
+        setExercicios([]);
       } finally {
         setLoading(false);
       }
@@ -30,31 +35,34 @@ const Niveis = () => {
     if (id) loadExercicios();
   }, [id]);
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#013974" />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#013974" />
-      
+
       <View style={styles.headerBackground} />
       <Text style={styles.headerTitle}>Níveis</Text>
 
-      <FlatList
-        data={exercicios}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <LevelCard nivel={item} />}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhum nível disponível</Text>
-        }
-      />
+      {loading ? (
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color="#003f83" />
+        </View>
+      ) : (
+        error ? (
+          <LoadingError />
+        ) : (
+          <FlatList
+            data={exercicios}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <LevelCard nivel={item} />}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>Nenhum nível disponível</Text>
+            }
+          />
+        )
+      )
+      }
     </View>
   );
 };

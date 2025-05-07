@@ -40,7 +40,6 @@ export default function RootLayout() {
         />
 
         <Stack.Screen name="onboarding" options={{ title: 'Bem-vindo' }} />
-        <Stack.Screen name="niveis"     options={{ title: 'Níveis' }} />
         <Stack.Screen name="pre-exercicios" options={{ title: 'Pré-Exercício' }} />
         <Stack.Screen name="exercicios" options={{ title: 'Exercícios' }} />
         <Stack.Screen name="modulos"        options={{ title: '' }} />

@@ -4,6 +4,7 @@ export async function buscarModulo() {
     const { data, error } = await supabase
     .from('modulo')
     .select('*')
+    .order('ordem', {ascending: true});
   if (error) throw error;
   return data;
 }
@@ -12,7 +13,8 @@ export async function buscarExercicios(modulo_uuid: string) {
   const { data, error } = await supabase
     .from('exercicio')
     .select('*')
-    .eq('id_modulo', modulo_uuid);
+    .eq('id_modulo', modulo_uuid)
+    .order('ordem', {ascending: true});
   if (error) throw error;
   return data;
 }

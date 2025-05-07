@@ -8,16 +8,19 @@ import {
   View,
 } from "react-native";
 
+import LoadingError from "@/components/LoadingError";
 import ModuloCard from "../components/ModuloCard";
 import { buscarModulo, contarExercicios } from "../services/supabase-query";
 
 const Modulos = () => {
   const [modulos, setModulos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setErro] = useState(false);
 
   useEffect(() => {
     async function loadModulos() {
       try {
+        setErro(false);
         const data = await buscarModulo();
         const mappedData = await Promise.all(
           data.map(async (modulo: any) => {
@@ -34,6 +37,8 @@ const Modulos = () => {
         setModulos(mappedData);
       } catch (error: any) {
         console.error("Erro ao buscar módulos:", error);
+        setErro(true);
+        setModulos([]);
       } finally {
         setLoading(false);
       }
@@ -53,6 +58,8 @@ const Modulos = () => {
             color="#003f83"
             style={{ marginTop: 150 }}
           />
+        ) : error ? (
+          <LoadingError />
         ) : (
           <FlatList
             data={modulos}
@@ -96,6 +103,7 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   background: {
+    flex: 1,
     backgroundColor: "#F7F9FA",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
