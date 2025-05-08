@@ -53,8 +53,6 @@ export async function buscarMidia(exercicio_uuid: string) {
       .from("exercicio_palavra")
       .select("*")
       .eq("id_exercicio", exercicio_uuid)
-      .eq("is_correta", true)  
-      .order("ordem", { ascending: true }); 
   
     if (error) throw error;
     return data;
