@@ -52,11 +52,15 @@ export async function buscarMidia(exercicio_uuid: string) {
     const { data, error } = await supabase
       .from("exercicio_palavra")
       .select("*")
-      .eq("id_exercicio", exercicio_uuid);
-
+      .eq("id_exercicio", exercicio_uuid)
+      .eq("is_correta", true)  
+      .order("ordem", { ascending: true }); 
+  
     if (error) throw error;
     return data;
   }
+  
+  
 
   export async function buscarDicionario() {
     const { data, error } = await supabase
@@ -74,4 +78,26 @@ export async function buscarMidia(exercicio_uuid: string) {
     return data;
   }
 
+  export async function buscarModuloPorId(id: string) {
+    const { data, error } = await supabase
+      .from('modulo')
+      .select('tema')
+      .eq('id', id)
+      .single();
+  
+    if (error) throw error;
+    return data.tema;
+  }
+
+  export async function buscarExercicioPorId(id: string) {
+    const { data, error } = await supabase
+      .from('exercicio')
+      .select('*')
+      .eq('id', id)
+      .single();
+  
+    if (error) throw error;
+    return data;
+  }
+  
 

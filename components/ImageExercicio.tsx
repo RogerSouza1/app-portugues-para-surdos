@@ -1,10 +1,11 @@
 import React from "react";
-import { View, Image, StyleSheet, Dimensions } from "react-native";
+import { Dimensions, Image, StyleSheet, View, StyleProp, ImageStyle } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
 interface ImageExercicioProps {
   image: any; 
+  style?: StyleProp<ImageStyle>;
 }
 
 const ImageExercicio: React.FC<ImageExercicioProps> = ({ image }) => {

@@ -1,27 +1,27 @@
+import LoadingError from "@/components/LoadingError";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  StatusBar,
   StyleSheet,
   Text,
   View,
-  StatusBar,
 } from "react-native";
 import LevelCard from "../../components/LevelCard";
 import { buscarExercicios } from "../../services/supabase-query";
-import LoadingError from "@/components/LoadingError";
 
 const Niveis = () => {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, tema } = useLocalSearchParams<{ id: string; tema: string }>();
   const [exercicios, setExercicios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false)
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     async function loadExercicios() {
       try {
-        setError(false)
+        setError(false);
         const data = await buscarExercicios(id);
         setExercicios(data);
       } catch (error) {
@@ -40,14 +40,14 @@ const Niveis = () => {
       <StatusBar barStyle="light-content" backgroundColor="#013974" />
 
       <View style={styles.headerBackground} />
-      <Text style={styles.headerTitle}>Níveis</Text>
+      <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail">{tema}</Text>
 
-      {loading ? (
-        <View style={styles.container}>
-          <ActivityIndicator size="large" color="#003f83" />
-        </View>
-      ) : (
-        error ? (
+      <View style={styles.background}>
+        {loading ? (
+          <View style={styles.container}>
+            <ActivityIndicator size="large" color="#003f83" />
+          </View>
+        ) : error ? (
           <LoadingError />
         ) : (
           <FlatList
@@ -60,9 +60,8 @@ const Niveis = () => {
               <Text style={styles.emptyText}>Nenhum nível disponível</Text>
             }
           />
-        )
-      )
-      }
+        )}
+      </View>
     </View>
   );
 };
@@ -82,10 +81,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 34,
     fontWeight: "bold",
     color: "#FFF",
-    margin: 24,
+    marginTop: 30,
+    marginBottom: 30,
+    marginLeft: 25,
     zIndex: 2,
   },
   listContainer: {
@@ -98,6 +99,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
   },
+  background: {
+    flex: 1,
+    backgroundColor: "#F7F9FA",
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+    zIndex: 3
+  }
 });
 
 export default Niveis;

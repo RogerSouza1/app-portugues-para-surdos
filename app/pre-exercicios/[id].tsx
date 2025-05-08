@@ -1,21 +1,24 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
-import NextButton from "../components/NextButton";
+import NextButton from "../../components/NextButton";
 
 const PreExercicio = () => {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 
   const handleNavigateToExercicios = () => {
-    router.push("/exercicios");
+    router.push({
+      pathname: "/exercicios/[id]",
+      params: { id }
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Tela Pré Exercício</Text>
+        <Text style={styles.title}>Pré Exercício {id}</Text>
       </View>
-
       <NextButton direction="right" onPress={handleNavigateToExercicios} />
     </SafeAreaView>
   );

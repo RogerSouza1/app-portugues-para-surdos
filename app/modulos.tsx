@@ -17,6 +17,8 @@ const Modulos = () => {
   const [loading, setLoading] = useState(true);
   const [error, setErro] = useState(false);
 
+  const numColumns = 2;
+
   useEffect(() => {
     async function loadModulos() {
       try {
@@ -30,7 +32,7 @@ const Modulos = () => {
               tema: modulo.tema,
               qtd_aulas: qtd_aulas,
               icone_url: modulo.icone_url,
-              cor: "#003f83",
+              cor: "#FFF",
             };
           })
         );
@@ -65,9 +67,11 @@ const Modulos = () => {
             data={modulos}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => <ModuloCard modulo={item} />}
+            numColumns={numColumns}
+            key={`grid-${numColumns}`}
             contentContainerStyle={styles.listContainer}
+            columnWrapperStyle={styles.columnWrapper}
             showsVerticalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
           />
         )}
       </View>
@@ -99,16 +103,22 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   listContainer: {
-    paddingTop: 30,
-    paddingBottom: 120,
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 10,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginVertical: 5, 
   },
   background: {
     flex: 1,
     backgroundColor: "#F7F9FA",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
     zIndex: 3
   }
 });
+
 
 export default Modulos;
