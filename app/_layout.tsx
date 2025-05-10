@@ -18,40 +18,19 @@ export default function RootLayout() {
       <StatusBar backgroundColor="#013974" barStyle="light-content" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#013974' },    
-          headerTintColor: '#fff',                            
+          headerStyle: { backgroundColor: '#013974' },
+          headerTintColor: '#fff',
           headerTitleAlign: 'center',
-          headerBackButtonDisplayMode: 'minimal',                        
-          headerRight: () => (
-            <View style={{ paddingRight: 16 }}>
-              <Image
-                source={require('../assets/images/logo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-            </View>
-          ),                                                  
+          headerBackButtonDisplayMode: 'minimal',
         }}
       >
-
-        <Stack.Screen
-          name="index"
-          options={{ headerShown: false }}
-        />
-
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ title: 'Bem-vindo' }} />
-        <Stack.Screen name="pre-exercicios" options={{ title: 'Pré-Exercício' }} />
-        <Stack.Screen name="exercicios" options={{ title: 'Exercícios' }} />
-        <Stack.Screen name="modulos"        options={{ title: '' }} />
-        <Stack.Screen name="niveis/[id]"        options={{ title: '' }} />
+        <Stack.Screen name="niveis/[id]" options={{ title: '' }} />
+        <Stack.Screen name="pre-exercicios/[id]" options={{ title: '' }} />
+        <Stack.Screen name="exercicios/[id]" options={{ title: '' }} />
+        <Stack.Screen name="tabs" options={{ headerShown: false }} /> 
       </Stack>
     </PaperProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  logo: {
-    width: 40,
-    height: 40,
-  },
-});

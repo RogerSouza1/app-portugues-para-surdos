@@ -34,7 +34,7 @@ const OnBoarding = () => {
 
   const handleNext = () => {
     if (currentIndex === images.length - 1) {
-      router.push("/modulos");
+      router.push({ pathname: "/tabs/modulos" });
     } else {
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
       setCurrentIndex((prevIndex) => prevIndex + 1);

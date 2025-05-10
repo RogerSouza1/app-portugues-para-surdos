@@ -9,8 +9,8 @@ import {
 } from "react-native";
 
 import LoadingError from "@/components/LoadingError";
-import ModuloCard from "../components/ModuloCard";
-import { buscarModulo, contarExercicios } from "../services/supabase-query";
+import ModuloCard from "../../components/ModuloCard";
+import { buscarModulo, contarExercicios } from "../../services/supabase-query";
 
 const Modulos = () => {
   const [modulos, setModulos] = useState<any[]>([]);
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingTop: 20,
-    paddingBottom: 20,
+    paddingBottom: 85,
     paddingHorizontal: 10,
   },
   columnWrapper: {
