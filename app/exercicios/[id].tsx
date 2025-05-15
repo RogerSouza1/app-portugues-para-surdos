@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -8,130 +8,138 @@ import {
   Vibration,
   View,
 } from "react-native";
-import ImageExercicio from "../../components/ImageExercicio";
-import NextButton from "../../components/NextButton";
+import LoadingError from "@/components/LoadingError";
 import {
   buscarAlternativas,
-  buscarExercicioPalavras,
   buscarExercicioPorId,
-  buscarMidia,
 } from "../../services/supabase-query";
-import LoadingError from "@/components/LoadingError";
+import NextButton from "@/components/NextButton";
 
 const Exercicios = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+
   const [exercicio, setExercicio] = useState<any>({});
-  const [tipo_exercicio, setTipoExercicio] = useState<String>()
+  const [tipo_exercicio, setTipoExercicio] = useState<string>();
   const [alternativas, setAlternativas] = useState<any[]>([]);
-  const [resposta_alternativa, setRespostaAlternativa] = useState<String>();
-  const [resposta_palavra, setRespostaPalavra] = useState<any[]>([]);;
-  const [palavra_selecionada, setPalavraSelecionada] = useState<String>();
-  const [frase_selecionada, setFraseSelecionada] = useState<any[]>([]);
-  const [error, setError] = useState<Boolean>(false);
-  const [loading, setLoading] = useState<Boolean>(true);
+  const [respostaCorreta, setRespostaCorreta] = useState<string | null>(null);
+  const [respostaUsuario, setRespostaUsuario] = useState<string | null>(null);
+  const [respondido, setRespondido] = useState<boolean>(false);
+  const [acertou, setAcertou] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
-    async function loadExercicio() {
-          try {
-            setError(false)
-            setLoading(true);
+    async function carregarExercicio() {
+      try {
+        setLoading(true);
+        setError(false);
 
-            const dataExercicio = await buscarExercicioPorId(id);
-            setExercicio(dataExercicio);
+        const data = await buscarExercicioPorId(id);
+        setExercicio(data);
 
-            let nomeExercicio = dataExercicio.nome;
-            let tipoExercicio = "";
+        const nome = data.nome || "";
+        const tipo = nome.includes("-") ? "palavra" : "alternativa";
+        setTipoExercicio(tipo);
 
-            if (nomeExercicio.includes("-")) {
-              tipoExercicio = "palavra";
-            } else {
-              tipoExercicio = "alternativa";
-            }
-            setTipoExercicio(tipoExercicio);
+        if (tipo === "alternativa") {
+          const dataAlternativas = await buscarAlternativas(id);
+          setAlternativas(
+              dataAlternativas.map((item: any) => ({
+                opcao: item.alternativa.opcao.trim(),
+                isCorreta: item.is_correta,
+              }))
+          );
 
-            if (tipoExercicio === 'alternativa') {
-              const dataAlternativas = await buscarAlternativas(id);
-              console.log("Alternativas:", dataAlternativas);
-                setAlternativas(
-                dataAlternativas.map((item: any) => ({
-                  opcao: item.alternativa.opcao,
-                }))
-                );
-
-                const resposta = dataAlternativas.filter(
-                  (item: any) => item.is_correta === true
-                );
-                console.log("Resposta:", resposta);
-                setRespostaAlternativa(resposta[0]?.alternativa?.opcao?.trim());
-
-            } else if (tipoExercicio === "palavra") {
-              const dataPalavras = await buscarExercicioPalavras(id);
-              setAlternativas(dataPalavras);
-              const resposta = dataPalavras.filter(
-                (exercicio: any) => exercicio.is_correta === true
-              );
-                setRespostaPalavra(resposta.map((item: any) => item.palavra));
-            }
-          } catch (error) {
-            console.error("Erro ao carregar exercício:", error);
-            setError(true);
-          } finally {
-            setLoading(false);
-          }
+          const resposta = dataAlternativas.find(
+              (item: any) => item.is_correta
+          );
+          setRespostaCorreta(resposta?.alternativa?.opcao?.trim());
         }
+      } catch (e) {
+        console.error("Erro:", e);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-        if (id) loadExercicio();
+    if (id) carregarExercicio();
   }, [id]);
 
+  const handleResposta = (opcao: string) => {
+    if (respondido) return;
 
+    Vibration.vibrate(50);
+    setRespostaUsuario(opcao);
+    const correta = opcao === respostaCorreta;
+    setAcertou(correta);
+    setRespondido(true);
+  };
 
+  const handleNavigateToExercicios = () => {
+    router.push("/tabs/modulos");
+  };
+
+  const corBotao = (opcao: string) => {
+    if (!respondido) return styles.wordButton;
+
+    if (opcao === respostaCorreta)
+      return [styles.wordButton, styles.correta];
+    if (opcao === respostaUsuario && opcao !== respostaCorreta)
+      return [styles.wordButton, styles.errada];
+
+    return styles.wordButton;
+  };
+
+  const corTexto = (opcao: string) => {
+    if (!respondido) return styles.wordText;
+
+    if (opcao === respostaCorreta)
+      return [styles.wordText, styles.textoCorreto];
+    if (opcao === respostaUsuario && opcao !== respostaCorreta)
+      return [styles.wordText, styles.textoErrado];
+
+    return styles.wordText;
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        {loading ? (
+            <Text style={styles.title}>Carregando exercício...</Text>
+        ) : error ? (
+            <LoadingError />
+        ) : (
+            <View style={{ width: "100%", marginTop: 40 }}>
+              {/* Fundo azul sem imagem */}
+              <View style={styles.topSection} />
 
-    {loading ? (
-      <Text style={{ color: "#013974", fontSize: 20, marginTop: 40 }}>
-          Carregando exercício...
-      </Text> 
-    ) : error ? (
-      <LoadingError />
-    ) : (
-      <View>
-        <View>
-          <Text>Exercício: {exercicio?.nome || ""}</Text>
-        </View>
-        <View>
-          <Text>Tipo de Exercício: {tipo_exercicio || ""}</Text>
-        </View>
-
-        {tipo_exercicio === "alternativa" && (
-          <>
-            <View>
-              <Text>Resposta Correta: {resposta_alternativa || ""}</Text>
+              {tipo_exercicio === "alternativa" && (
+                  <>
+                    <View style={styles.optionsContainer}>
+                      {alternativas.map((alt, index) => (
+                          <TouchableOpacity
+                              key={index}
+                              style={corBotao(alt.opcao)}
+                              onPress={() => handleResposta(alt.opcao)}
+                              disabled={respondido}
+                          >
+                            <Text style={corTexto(alt.opcao)}>{alt.opcao}</Text>
+                          </TouchableOpacity>
+                      ))}
+                    </View>
+                  </>
+              )}
             </View>
-            {alternativas.map((alt, idx) => (
-              <View key={idx}>
-          <Text>Alternativa {idx + 1}: {alt.opcao}</Text>
-              </View>
-            ))}
-          </>
         )}
 
-        {tipo_exercicio === "palavra" && (
-          <>
-            <View>
-              <Text>Frase Correta: {resposta_palavra?.join(" ") || ""}</Text>
-            </View>
-            {alternativas.map((alt, idx) => (
-              <View key={idx}>
-          <Text>Alternativa {idx + 1}: {alt.palavra}</Text>
-              </View>
-            ))}
-          </>
+        {respondido && (
+            <NextButton
+                direction="right"
+                onPress={handleNavigateToExercicios}
+            />
         )}
-      </View>
-    )}
-    </SafeAreaView>
+      </SafeAreaView>
   );
 };
 
@@ -142,55 +150,68 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  image: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  phraseContainer: {
-    marginVertical: 30,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-  },
-  phrase: {
+  title: {
     fontSize: 22,
     fontWeight: "bold",
     color: "#013974",
+    marginVertical: 15,
     textAlign: "center",
   },
-  blankContainer: {
-    marginHorizontal: 3,
-  },
-  blank: {
-    borderBottomWidth: 2,
-    borderColor: "#FFD600",
+  subtitle: {
+    fontSize: 18,
     color: "#013974",
-    paddingHorizontal: 8,
+    marginVertical: 10,
+    textAlign: "center",
+  },
+  topSection: {
+    width: "80%",
+    height: 400,
+    backgroundColor: "#013974",
+    borderRadius: 20,
+    marginBottom: 20,
+    marginTop: 40,
+    alignSelf: "center",
   },
   optionsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
     gap: 10,
-    marginBottom: 40,
+    marginTop: 20,
   },
   wordButton: {
-    backgroundColor: "#FFF",
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "#E3E8EE",
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    minWidth: 90,
+    width: 128,
+    height: 56,
+    borderRadius: 10,
+    backgroundColor: "#133558",
+    justifyContent: "center",
     alignItems: "center",
-    margin: 5,
+    shadowColor: "#0068AD",
+    shadowOffset: { width: 2, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 1,
+    elevation: 4,
   },
   wordText: {
     fontSize: 18,
-    color: "#013974",
+    color: "#FFFFFF",
     fontWeight: "500",
+  },
+  correta: {
+    backgroundColor: "#C8E6C9",
+  },
+  errada: {
+    backgroundColor: "#FFCDD2",
+  },
+  textoCorreto: {
+    color: "#2E7D32",
+  },
+  textoErrado: {
+    color: "#C62828",
+  },
+  NextButton: {
+    position: "absolute",
+    bottom: 20,
   },
 });
 

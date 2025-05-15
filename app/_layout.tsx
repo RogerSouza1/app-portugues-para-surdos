@@ -28,7 +28,7 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" options={{ title: 'Bem-vindo' }} />
         <Stack.Screen name="niveis/[id]" options={{ title: '' }} />
         <Stack.Screen name="pre-exercicios/[id]" options={{ title: '' }} />
-        <Stack.Screen name="exercicios/[id]" options={{ title: '' }} />
+        <Stack.Screen name="exercicios/[id]" options={{ title: 'Exercício' }} />
         <Stack.Screen name="tabs" options={{ headerShown: false }} /> 
       </Stack>
     </PaperProvider>
