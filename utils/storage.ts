@@ -32,28 +32,26 @@ export async function recuperarNiveis() {
   }
 }
 
-// Função para salvar os informacoes do usuário
-export async function salvarPreferencias(levels: any) {
+export async function salvarPreferencias(usuario: any) {
     try {
-      await AsyncStorage.setItem('@preferencias', JSON.stringify(levels));
+      await AsyncStorage.setItem('@usuario', JSON.stringify(usuario));
     } catch (error) {
-      console.error('Erro ao salvar preferências:', error);
+      console.error('Erro ao salvar informações do usuário:', error);
     }
   }
   
     //Exemplo de json
     // const preferencias = {
     // primeiro_acesso: true,
-    // modo_escuro: false,
     // }
 
   // Função para recuperar os informacoes do usuário
   export async function recuperarPreferencias() {
     try {
-      const jsonValue = await AsyncStorage.getItem('@preferencias');
+      const jsonValue = await AsyncStorage.getItem('@usuario');
       return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch (error) {
-      console.error('Erro ao recuperar preferências:', error);
+      console.error('Erro ao recuperar informações do usuário:', error);
       return null;
     }
   }
