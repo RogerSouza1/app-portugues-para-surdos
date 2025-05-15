@@ -1,16 +1,39 @@
+import { recuperarPreferencias, salvarPreferencias } from "@/utils/storage";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { } from '../utils/storage';
 
 export const options = {
   headerShown: false,
 };
 
+
+
 const Index = () => {
   const router = useRouter();
 
-  const handleStart = () => {
-    router.push("/onboarding");
+  const [primeiroAcesso, setPrimeiroAcesso] = useState(true); 
+
+  const handleStart = async () => {
+    const preferencias = (await recuperarPreferencias()) as { primeiro_acesso?: boolean };
+    
+    if (preferencias === null) {
+      setPrimeiroAcesso(true);
+    } else if (preferencias.primeiro_acesso === false) {
+      setPrimeiroAcesso(false);
+    }
+
+    if (primeiroAcesso){
+      router.replace('/onboarding');
+      const novasPreferencias = {
+        primeiro_acesso: false,
+      }
+      salvarPreferencias(novasPreferencias);
+    } else {
+      setPrimeiroAcesso(false);
+      router.replace({ pathname: "/tabs/modulos" });
+    }
   };
 
   return (
@@ -30,6 +53,16 @@ const Index = () => {
             <Text style={styles.buttonText}>Começar</Text>
           </TouchableOpacity>
         </View>
+        <Text>
+          Ao clicar em começar você concorda com os{' '}
+          <Text
+            style={{ color: '#013974', textDecorationLine: 'underline' }}
+            onPress={() => router.push('/termosDeUso')}
+          >
+            termos de uso e política de privacidade
+          </Text>{' '}
+          do aplicativo
+        </Text>
       </View>
     </SafeAreaView>
   );

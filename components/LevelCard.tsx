@@ -23,6 +23,10 @@ const LevelCard: React.FC<LevelCardProps> = ({ nivel }) => {
       activeOpacity={0.8}
     >
       <View style={styles.content}>
+        <Image
+          source={{ uri: nivel.imagem }}
+          style={{ width: 50, height: 50, borderRadius: 8 }}
+        />
         <Text style={styles.title}>{nivel.nome}</Text>
         <Image
           source={require("../assets/images/play.png")}

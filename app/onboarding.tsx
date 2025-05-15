@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
+  Text,
 } from "react-native";
 import Bullets from "../components/Bullets";
 import Card from "../components/Card";
@@ -34,7 +35,7 @@ const OnBoarding = () => {
 
   const handleNext = () => {
     if (currentIndex === images.length - 1) {
-      router.push({ pathname: "/tabs/modulos" });
+      router.replace({ pathname: "/tabs/modulos" });
     } else {
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
       setCurrentIndex((prevIndex) => prevIndex + 1);
