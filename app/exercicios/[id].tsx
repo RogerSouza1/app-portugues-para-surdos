@@ -20,7 +20,6 @@ const Exercicios = () => {
   const router = useRouter();
 
   const [exercicio, setExercicio] = useState<any>({});
-  const [tipo_exercicio, setTipoExercicio] = useState<string>();
   const [alternativas, setAlternativas] = useState<any[]>([]);
   const [respostaCorreta, setRespostaCorreta] = useState<string | null>(null);
   const [respostaUsuario, setRespostaUsuario] = useState<string | null>(null);
@@ -39,10 +38,7 @@ const Exercicios = () => {
         setExercicio(data);
 
         const nome = data.nome || "";
-        const tipo = nome.includes("-") ? "palavra" : "alternativa";
-        setTipoExercicio(tipo);
 
-        if (tipo === "alternativa") {
           const dataAlternativas = await buscarAlternativas(id);
           setAlternativas(
               dataAlternativas.map((item: any) => ({
@@ -55,7 +51,7 @@ const Exercicios = () => {
               (item: any) => item.is_correta
           );
           setRespostaCorreta(resposta?.alternativa?.opcao?.trim());
-        }
+        
       } catch (e) {
         console.error("Erro:", e);
         setError(true);
@@ -113,9 +109,6 @@ const Exercicios = () => {
             <View style={{ width: "100%", marginTop: 40 }}>
               {/* Fundo azul sem imagem */}
               <View style={styles.topSection} />
-
-              {tipo_exercicio === "alternativa" && (
-                  <>
                     <View style={styles.optionsContainer}>
                       {alternativas.map((alt, index) => (
                           <TouchableOpacity
@@ -128,8 +121,6 @@ const Exercicios = () => {
                           </TouchableOpacity>
                       ))}
                     </View>
-                  </>
-              )}
             </View>
         )}
 
