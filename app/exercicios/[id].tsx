@@ -12,8 +12,10 @@ import LoadingError from "@/components/LoadingError";
 import {
   buscarAlternativas,
   buscarExercicioPorId,
+  buscarImagemPorExercicioId,
 } from "../../services/supabase-query";
 import NextButton from "@/components/NextButton";
+import { Image } from "react-native";
 
 const Exercicios = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,6 +29,7 @@ const Exercicios = () => {
   const [acertou, setAcertou] = useState<boolean | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [mediaUrl, setMediaUrl] = useState<String>('');
 
   useEffect(() => {
     async function carregarExercicio() {
@@ -36,6 +39,15 @@ const Exercicios = () => {
 
         const data = await buscarExercicioPorId(id);
         setExercicio(data);
+
+        const mediaData = await buscarImagemPorExercicioId(id);
+        if (mediaData.length > 0) {
+          const media = mediaData[0];
+          const url = media.url;
+          setMediaUrl(url);
+        } else {
+          setMediaUrl("https://cdn-icons-png.flaticon.com/512/3273/3273587.png");
+        }
 
         const nome = data.nome || "";
 
@@ -107,7 +119,6 @@ const Exercicios = () => {
             <LoadingError />
         ) : (
             <View style={{ width: "100%", marginTop: 40 }}>
-              {/* Fundo azul sem imagem */}
               <View style={styles.topSection} />
                     <View style={styles.optionsContainer}>
                       {alternativas.map((alt, index) => (

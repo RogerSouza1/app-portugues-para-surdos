@@ -57,8 +57,6 @@ export async function buscarMidia(exercicio_uuid: string) {
     if (error) throw error;
     return data;
   }
-  
-  
 
   export async function buscarDicionario() {
     const { data, error } = await supabase
@@ -93,6 +91,17 @@ export async function buscarMidia(exercicio_uuid: string) {
       .select('*')
       .eq('id', id)
       .single();
+  
+    if (error) throw error;
+    return data;
+  }
+
+  export async function buscarImagemPorExercicioId(id: string) {
+    const { data, error } = await supabase
+      .from('media')
+      .select('*')
+      .eq('id_exercicio', id)
+      .eq('tipo', 'media_pergunta')
   
     if (error) throw error;
     return data;
