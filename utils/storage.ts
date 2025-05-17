@@ -21,7 +21,6 @@ export async function salvarNiveis(levels: any) {
   }
 }
 
-// Função para recuperar os níveis do usuário
 export async function recuperarNiveis() {
   try {
     const jsonValue = await AsyncStorage.getItem('@user_levels');
@@ -40,18 +39,33 @@ export async function salvarPreferencias(usuario: any) {
     }
   }
   
-    //Exemplo de json
-    // const preferencias = {
-    // primeiro_acesso: true,
-    // }
-
-  // Função para recuperar os informacoes do usuário
-  export async function recuperarPreferencias() {
-    try {
-      const jsonValue = await AsyncStorage.getItem('@usuario');
-      return jsonValue != null ? JSON.parse(jsonValue) : null;
-    } catch (error) {
-      console.error('Erro ao recuperar informações do usuário:', error);
-      return null;
-    }
+export async function recuperarPreferencias() {
+  try {
+    const jsonValue = await AsyncStorage.getItem('@usuario');
+    return jsonValue != null ? JSON.parse(jsonValue) : null;
+  } catch (error) {
+    console.error('Erro ao recuperar informações do usuário:', error);
+    return null;
   }
+}
+
+export async function salvarExercicioConcluido(id: string, status: boolean) {
+  try {
+    const jsonValue = await AsyncStorage.getItem('@exercicios_concluidos');
+    const concluidos = jsonValue ? JSON.parse(jsonValue) : {};
+    concluidos[id] = status;
+    await AsyncStorage.setItem('@exercicios_concluidos', JSON.stringify(concluidos));
+  } catch (error) {
+    console.error('Erro ao salvar exercício concluído:', error);
+  }
+}
+
+export async function recuperarExerciciosConcluidos() {
+  try {
+    const jsonValue = await AsyncStorage.getItem('@exercicios_concluidos');
+    return jsonValue ? JSON.parse(jsonValue) : {};
+  } catch (error) {
+    console.error('Erro ao recuperar exercícios concluídos:', error);
+    return {};
+  }
+}

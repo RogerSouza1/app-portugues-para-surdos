@@ -13,25 +13,15 @@ export const options = {
 const Index = () => {
   const router = useRouter();
 
-  const [primeiroAcesso, setPrimeiroAcesso] = useState(true); 
+  const [primeiroAcesso, setPrimeiroAcesso] = useState(false); 
 
   const handleStart = async () => {
-    const preferencias = (await recuperarPreferencias()) as { primeiro_acesso?: boolean };
-    
-    if (preferencias === null) {
-      setPrimeiroAcesso(true);
-    } else if (preferencias.primeiro_acesso === false) {
-      setPrimeiroAcesso(false);
-    }
+    const preferencias = await recuperarPreferencias();
 
-    if (primeiroAcesso){
+    if (!preferencias || preferencias.primeiro_acesso === false || preferencias.primeiro_acesso == null) {
+      await salvarPreferencias({ primeiro_acesso: true });
       router.replace('/onboarding');
-      const novasPreferencias = {
-        primeiro_acesso: false,
-      }
-      salvarPreferencias(novasPreferencias);
-    } else {
-      setPrimeiroAcesso(false);
+    } else if (preferencias.primeiro_acesso === true) {
       router.replace({ pathname: "/tabs/modulos" });
     }
   };

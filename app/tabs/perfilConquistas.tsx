@@ -1,18 +1,33 @@
-import React from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  StatusBar,
+  Dimensions,
   Image,
   ScrollView,
-  Dimensions,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { contarTotalExercicios } from "../../services/supabase-query";
+import { recuperarExerciciosConcluidos } from "../../utils/storage";
 
 export default function PerfilConquistas() {
   const badgeIcons: Array<
-    "star" | "trophy" | "medal" | "crown" | "diamond-stone" | "rocket" | "emoticon-happy" | "fire" | "heart" | "lightbulb-on" | "shield-check" | "account-star"
+    | "star"
+    | "trophy"
+    | "medal"
+    | "crown"
+    | "diamond-stone"
+    | "rocket"
+    | "emoticon-happy"
+    | "fire"
+    | "heart"
+    | "lightbulb-on"
+    | "shield-check"
+    | "account-star"
   > = [
     "star",
     "trophy",
@@ -30,26 +45,109 @@ export default function PerfilConquistas() {
 
   const screenWidth = Dimensions.get("window").width;
   const badgeMargin = 8;
-  const badgeSize = (screenWidth - badgeMargin * 5 - 40) / 4; 
+  const badgeSize = (screenWidth - badgeMargin * 5 - 40) / 4;
+
+  const [totalExercicios, setTotalExercicios] = useState<number>(0);
+  const [exerciciosConcluidosCount, setExerciciosConcluidosCount] = useState(0);
+  const [nome, setNome] = useState<string>("");
+  const [fotoUri, setFotoUri] = useState<string | null>(null);
+
+  const carregarPreferenciasUsuario = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("@profile");
+      if (jsonValue != null) {
+        const usuario = JSON.parse(jsonValue);
+        setNome(usuario.nome);
+        setFotoUri(usuario.fotoUri);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar preferências:", error);
+    }
+  };
+
+  const carregarLicoesConcluidas = async () => {
+    try {
+      const concluidosObj = await recuperarExerciciosConcluidos();
+      const count = Object.values(concluidosObj).filter(
+        (status) => status === true
+      ).length;
+      setExerciciosConcluidosCount(count);
+    } catch (error) {
+      console.error("Erro ao carregar lições concluídas:", error);
+    }
+  };
+
+  const carregarTotalExercicios = async () => {
+    try {
+      const total = await contarTotalExercicios();
+      setTotalExercicios(total ?? 0);
+    } catch (error) {
+      console.error("Erro ao carregar total de exercícios:", error);
+    }
+  };
+
+  useEffect(() => {
+    carregarPreferenciasUsuario();
+    carregarLicoesConcluidas();
+    carregarTotalExercicios();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      carregarPreferenciasUsuario();
+      carregarLicoesConcluidas();
+      carregarTotalExercicios();
+    }, [])
+  );
+
+  const percentual =
+    totalExercicios > 0
+      ? Math.round((exerciciosConcluidosCount / totalExercicios) * 100)
+      : 0;
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#013974" />
       <View style={styles.headerBackground} />
       <View style={styles.headerIconContainer}>
-        <Image
-          source={require("../../assets/images/image1.jpg")}
-          style={styles.headerImage}
-        />
-        <Text style={styles.headerName}>Andressa Urach</Text>
+        {fotoUri ? (
+          <Image
+            source={{ uri: `${fotoUri}?v=${Date.now()}` }}
+            style={styles.headerImage}
+          />
+        ) : (
+          <MaterialCommunityIcons
+            name="account-circle"
+            size={200}
+            color="#FFF"
+            style={{ backgroundColor: "#013974", borderRadius: 100 }}
+          />
+        )}
+        <Text style={styles.headerName}>{nome || "Usuário"}</Text>
       </View>
       <View style={styles.background}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Lições Concluídas</Text>
+            <Text style={styles.sectionTitle}>
+              Lições Concluídas{" "}
+              <Text style={{ fontWeight: "normal", fontSize: 16, color: "#013974" }}>
+                {exerciciosConcluidosCount} / {totalExercicios}
+              </Text>
+            </Text>
             <View style={styles.progressBarBackground}>
-              <View style={[styles.progressBarFill, { width: "70%" }]} />
+              <View
+                style={[
+                  styles.progressBarFill,
+                  { width: `${percentual}%` },
+                ]}
+              />
             </View>
+            <Text style={styles.percentualText}>
+              {percentual}% concluído
+            </Text>
           </View>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Conquistas</Text>
@@ -75,7 +173,6 @@ export default function PerfilConquistas() {
               ))}
             </View>
           </View>
-          
         </ScrollView>
       </View>
     </View>
@@ -141,6 +238,13 @@ const styles = StyleSheet.create({
   progressBarFill: {
     height: "100%",
     backgroundColor: "#013974",
+  },
+  percentualText: {
+    marginTop: 8,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#013974",
+    textAlign: "center",
   },
   badgesContainer: {
     flexDirection: "row",

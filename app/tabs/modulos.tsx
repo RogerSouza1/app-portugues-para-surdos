@@ -1,3 +1,5 @@
+import LoadingError from "@/components/LoadingError";
+import { useFocusEffect } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -7,10 +9,9 @@ import {
   Text,
   View,
 } from "react-native";
-
-import LoadingError from "@/components/LoadingError";
 import ModuloCard from "../../components/ModuloCard";
 import { buscarModulo, contarExercicios } from "../../services/supabase-query";
+import { verificarModuloCompleto } from "../../utils/statusHelpers";
 
 const Modulos = () => {
   const [modulos, setModulos] = useState<any[]>([]);
@@ -19,34 +20,44 @@ const Modulos = () => {
 
   const numColumns = 2;
 
-  useEffect(() => {
-    async function loadModulos() {
-      try {
-        setErro(false);
-        const data = await buscarModulo();
-        const mappedData = await Promise.all(
-          data.map(async (modulo: any) => {
-            const qtd_aulas = await contarExercicios(modulo.id);
-            return {
-              id: modulo.id,
-              tema: modulo.tema,
-              qtd_aulas: qtd_aulas,
-              icone_url: modulo.icone_url,
-              cor: "#FFF",
-            };
-          })
-        );
-        setModulos(mappedData);
-      } catch (error: any) {
-        console.error("Erro ao buscar módulos:", error);
-        setErro(true);
-        setModulos([]);
-      } finally {
-        setLoading(false);
-      }
+  const loadModulos = async () => {
+    try {
+      setErro(false);
+      const data = await buscarModulo();
+      const mappedData = await Promise.all(
+        data.map(async (modulo: any) => {
+          const qtd_aulas = await contarExercicios(modulo.id);
+          const concluido = await verificarModuloCompleto(modulo.id);
+          return {
+            id: modulo.id,
+            tema: modulo.tema,
+            qtd_aulas,
+            icone_url: modulo.icone_url,
+            cor: "#FFF",
+            concluido,
+          };
+        })
+      );
+      setModulos(mappedData);
+    } catch (error: any) {
+      console.error("Erro ao buscar módulos:", error);
+      setErro(true);
+      setModulos([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadModulos();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Recarrega os módulos ao voltar à tela
+      loadModulos();
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
@@ -90,7 +101,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 140,
-    backgroundColor: "#013974", 
+    backgroundColor: "#013974",
     zIndex: 1,
   },
   headerTitle: {
@@ -108,17 +119,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   columnWrapper: {
-    justifyContent: 'space-between',
-    marginVertical: 5, 
+    justifyContent: "space-between",
+    marginVertical: 5,
   },
   background: {
     flex: 1,
     backgroundColor: "#F7F9FA",
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
-    zIndex: 3
-  }
+    zIndex: 3,
+  },
 });
-
 
 export default Modulos;

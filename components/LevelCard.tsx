@@ -18,16 +18,26 @@ const LevelCard: React.FC<LevelCardProps> = ({ nivel }) => {
 
   return (
     <TouchableOpacity
-      style={styles.card}
+      style={[
+      styles.card,
+      nivel.concluido && { backgroundColor: "#4CAF50" }
+      ]}
       onPress={handlePress}
       activeOpacity={0.8}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>{nivel.nome}</Text>
-        <Image
-          source={require("../assets/images/play.png")}
-          style={styles.playIcon}
-        />
+      <Text style={styles.title}>{nivel.nome}</Text>
+      <Image
+        source={
+        nivel.concluido
+          ? require("../assets/images/check.png")
+          : require("../assets/images/play.png")
+        }
+        style={[
+        styles.playIcon,
+        nivel.concluido && { tintColor: "#FFF" }
+        ]}
+      />
       </View>
     </TouchableOpacity>
   );

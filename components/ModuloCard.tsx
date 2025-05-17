@@ -1,6 +1,6 @@
-import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet, Image } from "react-native";
 import { useRouter } from "expo-router";
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface Modulo {
   id: string;
@@ -8,6 +8,7 @@ interface Modulo {
   qtd_aulas?: number;
   icone_url: string;
   cor: string;
+  concluido?: boolean;
 }
 
 interface ModuloCardProps {
@@ -20,22 +21,15 @@ const ModuloCard: React.FC<ModuloCardProps> = ({ modulo }) => {
   const handlePress = () => {
     router.push({
       pathname: "/niveis/[id]" as never,
-      params: { id: modulo.id, tema: modulo.tema}
+      params: { id: modulo.id, tema: modulo.tema },
     });
   };
 
   return (
-    <TouchableOpacity
-      onPress={handlePress}
-      activeOpacity={0.9}
-      style={styles.cardContainer}
-    >
-      <View style={[styles.card, { backgroundColor: modulo.cor }]}>
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.9} style={styles.cardContainer}>
+      <View style={[styles.card, { backgroundColor: modulo.cor }, modulo.concluido && styles.cardConcluido]}>
         <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: modulo.icone_url }}
-            style={styles.illustration}
-          />
+          <Image source={{ uri: modulo.icone_url }} style={styles.illustration} />
           <View style={styles.lessonsBoxOverlay}>
             <Text style={styles.lessonsText}>{modulo.qtd_aulas} Aulas</Text>
           </View>
@@ -45,11 +39,15 @@ const ModuloCard: React.FC<ModuloCardProps> = ({ modulo }) => {
           <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
             {modulo.tema}
           </Text>
-
+          {modulo.concluido && <Text style={styles.status}>Concluído</Text>}
           <View style={styles.bottomRow}>
             <View style={styles.playButton}>
               <Image
-                source={require("../assets/images/play.png")}
+                source={
+                  modulo.concluido
+                    ? require("../assets/images/check.png")
+                    : require("../assets/images/play.png")
+                }
                 style={styles.playIcon}
               />
             </View>
@@ -76,6 +74,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     height: 280,
+  },
+  cardConcluido: {
+    backgroundColor: "#4CAF50",
   },
   imageContainer: {
     width: "100%",
@@ -112,11 +113,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+  status: {
+    marginTop: 4,
+    color: "#FFF",
+    backgroundColor: "#2E7D32",
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    fontSize: 12,
+    alignSelf: "flex-start",
+  },
   bottomRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 20, 
+    marginTop: 20,
   },
   playButton: {
     width: "100%",

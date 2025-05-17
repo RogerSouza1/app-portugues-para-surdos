@@ -28,6 +28,16 @@ export async function contarExercicios(modulo_uuid: string) {
   return count;
 }
 
+export async function contarTotalExercicios() {
+  const { count, error } = await supabase
+    .from('exercicio')
+    .select('*', { count: 'exact', head: true })
+  if (error) throw error;
+  return count;
+}
+
+
+
 export async function buscarAlternativas(exercicio_uuid: string) {
     const { data, error } = await supabase
       .from('exercicio_alternativa')

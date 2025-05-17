@@ -1,3 +1,6 @@
+import LoadingError from "@/components/LoadingError";
+import NextButton from "@/components/NextButton";
+import { salvarExercicioConcluido, recuperarExerciciosConcluidos } from "@/utils/storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -8,14 +11,12 @@ import {
   Vibration,
   View,
 } from "react-native";
-import LoadingError from "@/components/LoadingError";
 import {
   buscarAlternativas,
   buscarExercicioPorId,
+  buscarExercicios,
   buscarImagemPorExercicioId,
 } from "../../services/supabase-query";
-import NextButton from "@/components/NextButton";
-import { Image } from "react-native";
 
 const Exercicios = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -83,6 +84,15 @@ const Exercicios = () => {
     const correta = opcao === respostaCorreta;
     setAcertou(correta);
     setRespondido(true);
+
+    if (correta) {
+      salvarExercicioConcluido(exercicio.id, true);
+    }
+    
+    router.replace({
+      pathname: "/niveis/[id]" as never,
+      params: { id: exercicio.id_modulo } as never,
+    });
   };
 
   const handleNavigateToExercicios = () => {
