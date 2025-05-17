@@ -38,9 +38,28 @@ const Niveis = () => {
       try {
         setError(false);
         const data = await carregarExerciciosComStatus(id);
-        const exerciciosFacil = data.filter((exercicio) => exercicio.nivel === "FÁCIL");
-        const exerciciosMedio = data.filter((exercicio) => exercicio.nivel === "MÉDIO");
-        const exerciciosDificil = data.filter((exercicio) => exercicio.nivel === "DIFÍCIL");
+
+        const exerciciosFacil = data
+          .filter((exercicio) => exercicio.nivel === "FÁCIL")
+          .sort((a, b) => a.ordem - b.ordem)
+          .map((exercicio) => ({ ...exercicio, locked: false }));
+        const desbloqueadoFacil =
+          exerciciosFacil.length > 0 && exerciciosFacil.every((exercicio) => exercicio.concluido);
+
+        const exerciciosMedio = data
+          .filter((exercicio) => exercicio.nivel === "MÉDIO")
+          .sort((a, b) => a.ordem - b.ordem)
+          .map((exercicio) => ({ ...exercicio, locked: !desbloqueadoFacil }));
+        const desbloqueadoMedio =
+          desbloqueadoFacil &&
+          exerciciosMedio.length > 0 &&
+          exerciciosMedio.every((exercicio) => exercicio.concluido);
+
+        const exerciciosDificil = data
+          .filter((exercicio) => exercicio.nivel === "DIFÍCIL")
+          .sort((a, b) => a.ordem - b.ordem)
+          .map((exercicio) => ({ ...exercicio, locked: !desbloqueadoMedio }));
+
         setExerciciosFacil(exerciciosFacil);
         setExerciciosMedio(exerciciosMedio);
         setExerciciosDificil(exerciciosDificil);
