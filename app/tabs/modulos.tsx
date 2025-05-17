@@ -10,8 +10,9 @@ import {
   View,
 } from "react-native";
 import ModuloCard from "../../components/ModuloCard";
-import { buscarModulo, contarExercicios } from "../../services/supabase-query";
+import { buscarExercicios, buscarModulo, contarExercicios } from "../../services/supabase-query";
 import { verificarModuloCompleto } from "../../utils/statusHelpers";
+import { recuperarExerciciosConcluidos } from "../../utils/storage";
 
 const Modulos = () => {
   const [modulos, setModulos] = useState<any[]>([]);
@@ -28,16 +29,45 @@ const Modulos = () => {
         data.map(async (modulo: any) => {
           const qtd_aulas = await contarExercicios(modulo.id);
           const concluido = await verificarModuloCompleto(modulo.id);
+
+          const exercicios = await buscarExercicios(modulo.id);
+          const concluidosObj = await recuperarExerciciosConcluidos();
+          const completedCount = exercicios.filter((ex: any) => concluidosObj[ex.id]).length;
+          let status = "";
+          if (completedCount > 0 && completedCount < exercicios.length) {
+            status = "Em andamento";
+          } else if (completedCount === exercicios.length) {
+            status = "Concluído";
+          }
+          
+
           return {
             id: modulo.id,
             tema: modulo.tema,
             qtd_aulas,
             icone_url: modulo.icone_url,
+
             cor: "#FFF",
             concluido,
+            status,
+            ordem: modulo.ordem,
+            locked: false, 
           };
         })
       );
+
+
+      mappedData.sort((a, b) => a.ordem - b.ordem);
+
+
+      for (let i = 0; i < mappedData.length; i++) {
+        if (i > 0 && mappedData[i - 1].status !== "Concluído") {
+          mappedData[i].locked = true;
+          mappedData[i].status = "Bloqueado";
+          mappedData[i].cor = "#D9D9D9";
+        }
+      }
+
       setModulos(mappedData);
     } catch (error: any) {
       console.error("Erro ao buscar módulos:", error);
@@ -54,7 +84,6 @@ const Modulos = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Recarrega os módulos ao voltar à tela
       loadModulos();
     }, [])
   );

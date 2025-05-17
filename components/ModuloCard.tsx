@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -9,6 +10,8 @@ interface Modulo {
   icone_url: string;
   cor: string;
   concluido?: boolean;
+  status?: string; 
+  locked?: boolean;
 }
 
 interface ModuloCardProps {
@@ -19,37 +22,58 @@ const ModuloCard: React.FC<ModuloCardProps> = ({ modulo }) => {
   const router = useRouter();
 
   const handlePress = () => {
-    router.push({
-      pathname: "/niveis/[id]" as never,
-      params: { id: modulo.id, tema: modulo.tema },
-    });
+    if (!modulo.locked) {
+      router.push({
+        pathname: "/niveis/[id]" as never,
+        params: { id: modulo.id, tema: modulo.tema },
+      });
+    }
   };
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.9} style={styles.cardContainer}>
-      <View style={[styles.card, { backgroundColor: modulo.cor }, modulo.concluido && styles.cardConcluido]}>
+      <View style={[styles.card, { backgroundColor: modulo.cor }]}>
         <View style={styles.imageContainer}>
           <Image source={{ uri: modulo.icone_url }} style={styles.illustration} />
           <View style={styles.lessonsBoxOverlay}>
             <Text style={styles.lessonsText}>{modulo.qtd_aulas} Aulas</Text>
           </View>
         </View>
-
         <View style={styles.contentContainer}>
           <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
             {modulo.tema}
           </Text>
-          {modulo.concluido && <Text style={styles.status}>Concluído</Text>}
+          {/* Se há status, exibe-o */}
+          {modulo.status !== "" && modulo.status && (
+            <Text
+              style={[
+                styles.status,
+                modulo.status === "Concluído"
+                  ? styles.concluidoStatus
+                  : modulo.status === "Em andamento"
+                  ? styles.emAndamentoStatus
+                  : modulo.status === "Bloqueado"
+                  ? styles.bloqueadoStatus
+                  : {},
+              ]}
+            >
+              {modulo.status}
+            </Text>
+          )}
           <View style={styles.bottomRow}>
             <View style={styles.playButton}>
-              <Image
-                source={
-                  modulo.concluido
-                    ? require("../assets/images/check.png")
-                    : require("../assets/images/play.png")
-                }
-                style={styles.playIcon}
-              />
+              {modulo.locked ? (
+                <MaterialCommunityIcons name="lock" size={35} color="#FFF" />
+              ) : (
+                <Image
+                  source={
+                    modulo.concluido
+                      ? require("../assets/images/check.png")
+                      : require("../assets/images/play.png")
+                  }
+                  style={styles.playIcon}
+                />
+              )}
             </View>
           </View>
         </View>
@@ -74,9 +98,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     height: 280,
-  },
-  cardConcluido: {
-    backgroundColor: "#4CAF50",
   },
   imageContainer: {
     width: "100%",
@@ -115,13 +136,21 @@ const styles = StyleSheet.create({
   },
   status: {
     marginTop: 4,
-    color: "#FFF",
-    backgroundColor: "#2E7D32",
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
     fontSize: 12,
     alignSelf: "flex-start",
+    color: "#FFF",
+  },
+  concluidoStatus: {
+    backgroundColor: "#4CAF50",
+  },
+  emAndamentoStatus: {
+    backgroundColor: "#2196F3",
+  },
+  bloqueadoStatus: {
+    backgroundColor: "#555555",
   },
   bottomRow: {
     flexDirection: "row",
@@ -140,7 +169,6 @@ const styles = StyleSheet.create({
   playIcon: {
     width: 35,
     height: 35,
-    tintColor: "#FFF",
   },
 });
 
