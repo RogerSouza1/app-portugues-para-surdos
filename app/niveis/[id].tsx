@@ -43,13 +43,16 @@ const Niveis = () => {
           .filter((exercicio) => exercicio.nivel === "FÁCIL")
           .sort((a, b) => a.ordem - b.ordem)
           .map((exercicio) => ({ ...exercicio, locked: false }));
+
         const desbloqueadoFacil =
-          exerciciosFacil.length > 0 && exerciciosFacil.every((exercicio) => exercicio.concluido);
+          exerciciosFacil.length > 0 &&
+          exerciciosFacil.every((exercicio) => exercicio.concluido);
 
         const exerciciosMedio = data
           .filter((exercicio) => exercicio.nivel === "MÉDIO")
           .sort((a, b) => a.ordem - b.ordem)
           .map((exercicio) => ({ ...exercicio, locked: !desbloqueadoFacil }));
+
         const desbloqueadoMedio =
           desbloqueadoFacil &&
           exerciciosMedio.length > 0 &&
@@ -60,9 +63,35 @@ const Niveis = () => {
           .sort((a, b) => a.ordem - b.ordem)
           .map((exercicio) => ({ ...exercicio, locked: !desbloqueadoMedio }));
 
-        setExerciciosFacil(exerciciosFacil);
-        setExerciciosMedio(exerciciosMedio);
-        setExerciciosDificil(exerciciosDificil);
+        const todosExercicios = [
+          ...exerciciosFacil,
+          ...exerciciosMedio,
+          ...exerciciosDificil,
+        ];
+
+        const exerciciosComIndice = todosExercicios.map((exercicio, idx) => ({
+          ...exercicio,
+          globalIndex: idx + 1,
+        }));
+
+        const novaSecaoFacil = {
+          title: "FÁCIL",
+          data: exerciciosComIndice.filter((ex) => ex.nivel === "FÁCIL"),
+        };
+
+        const novaSecaoMedio = {
+          title: "MÉDIO",
+          data: exerciciosComIndice.filter((ex) => ex.nivel === "MÉDIO"),
+        };
+
+        const novaSecaoDificil = {
+          title: "DIFÍCIL",
+          data: exerciciosComIndice.filter((ex) => ex.nivel === "DIFÍCIL"),
+        };
+
+        setExerciciosFacil(novaSecaoFacil.data);
+        setExerciciosMedio(novaSecaoMedio.data);
+        setExerciciosDificil(novaSecaoDificil.data);
       } catch (error) {
         console.error("Erro ao carregar níveis:", error);
         setError(true);
@@ -73,6 +102,7 @@ const Niveis = () => {
         setLoading(false);
       }
     }
+
     if (id) loadExercicios();
   }, [id]);
 
@@ -83,7 +113,10 @@ const Niveis = () => {
         return true;
       };
 
-      const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
       return () => subscription.remove();
     }, [router])
   );
@@ -93,7 +126,9 @@ const Niveis = () => {
       <StatusBar barStyle="light-content" backgroundColor="#013974" />
 
       <View style={styles.headerBackground} />
-      <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail">{tema}</Text>
+      <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail">
+        {tema}
+      </Text>
 
       <View style={styles.background}>
         {loading ? (
@@ -103,24 +138,35 @@ const Niveis = () => {
         ) : error ? (
           <LoadingError />
         ) : (
-            <View>
+          <View>
             <SectionList
               sections={[
-                ...(exerciciosFacil.length > 0 ? [{ title: "Fácil", data: exerciciosFacil }] : []),
-                ...(exerciciosMedio.length > 0 ? [{ title: "Médio", data: exerciciosMedio }] : []),
-                ...(exerciciosDificil.length > 0 ? [{ title: "Difícil", data: exerciciosDificil }] : []),
+                ...(exerciciosFacil.length > 0
+                  ? [{ data: exerciciosFacil }]
+                  : []),
+                ...(exerciciosMedio.length > 0
+                  ? [{ data: exerciciosMedio }]
+                  : []),
+                ...(exerciciosDificil.length > 0
+                  ? [{ data: exerciciosDificil }]
+                  : []),
               ]}
-              keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-              renderItem={({ item }) => <LevelCard key={item.id} nivel={item} />}
-              renderSectionHeader={({ section: { title } }) => (
-                <Text style={{ fontWeight: "bold", fontSize: 18, marginVertical: 10 }}>{title}</Text>
+              keyExtractor={(item, index) =>
+                item.id?.toString() || index.toString()
+              }
+              renderItem={({ item }) => (
+                <LevelCard
+                  key={item.id}
+                  nivel={item}
+                  index={item.globalIndex - 1}
+                />
               )}
               contentContainerStyle={styles.listContainer}
               ListEmptyComponent={
                 <Text style={styles.emptyText}>Nenhum nível disponível</Text>
               }
             />
-            </View>
+          </View>
         )}
       </View>
     </View>
@@ -165,8 +211,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7F9FA",
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
-    zIndex: 3
-  }
+    zIndex: 3,
+  },
 });
 
 export default Niveis;

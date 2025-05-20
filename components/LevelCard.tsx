@@ -4,10 +4,16 @@ import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface LevelCardProps {
-  nivel: any;
+  nivel: {
+    id: number;
+    nome: string;
+    locked: boolean;
+    concluido: boolean;
+  };
+  index: number;
 }
 
-const LevelCard: React.FC<LevelCardProps> = ({ nivel }) => {
+const LevelCard: React.FC<LevelCardProps> = ({ nivel, index }) => {
   const router = useRouter();
 
   const handlePress = () => {
@@ -34,6 +40,7 @@ const LevelCard: React.FC<LevelCardProps> = ({ nivel }) => {
       disabled={nivel.locked}
     >
       <View style={styles.content}>
+        {/* Aqui exibimos o índice +1 em vez do nome */}
         <Text
           style={[
             styles.title,
@@ -41,12 +48,19 @@ const LevelCard: React.FC<LevelCardProps> = ({ nivel }) => {
             nivel.concluido && { color: "#FFF" },
           ]}
         >
-          {nivel.nome}
+          {index + 1}
         </Text>
+
         {nivel.concluido ? (
           <Image
             source={require("../assets/images/check.png")}
-            style={[styles.playIcon, { tintColor: nivel.concluido ? "#FFF" : "#013974" }]}
+            style={[styles.playIcon, { tintColor: "#FFF" }]}
+          />
+        ) : nivel.locked ? (
+          <MaterialCommunityIcons
+            name="lock-outline"
+            size={24}
+            color="#013974"
           />
         ) : (
           <Image
@@ -55,11 +69,6 @@ const LevelCard: React.FC<LevelCardProps> = ({ nivel }) => {
           />
         )}
       </View>
-      {nivel.locked && (
-        <View style={styles.lockOverlay}>
-          <MaterialCommunityIcons name="lock" size={24} color="#FFF" />
-        </View>
-      )}
     </TouchableOpacity>
   );
 };
@@ -75,7 +84,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
-    position: "relative",
   },
   lockedCard: {
     backgroundColor: "#CCC",
@@ -93,12 +101,6 @@ const styles = StyleSheet.create({
   playIcon: {
     width: 24,
     height: 24,
-    tintColor: "#013974",
-  },
-  lockOverlay: {
-    position: "absolute",
-    top: 5,
-    right: 5,
   },
 });
 

@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -10,42 +10,32 @@ import {
   StyleSheet,
   Text,
   View,
+  Platform,
 } from "react-native";
 import { contarTotalExercicios } from "../../services/supabase-query";
 import { recuperarExerciciosConcluidos } from "../../utils/storage";
 
 export default function PerfilConquistas() {
-  const badgeIcons: Array<
-    | "star"
-    | "trophy"
-    | "medal"
-    | "crown"
-    | "diamond-stone"
-    | "rocket"
-    | "emoticon-happy"
-    | "fire"
-    | "heart"
-    | "lightbulb-on"
-    | "shield-check"
-    | "account-star"
-  > = [
+  const badgeIcons = [
+    "star-outline",
+    "star-half-full",
     "star",
+    "trophy-outline",
     "trophy",
-    "medal",
+    "crown-outline",
     "crown",
-    "diamond-stone",
-    "rocket",
-    "emoticon-happy",
-    "fire",
-    "heart",
-    "lightbulb-on",
-    "shield-check",
-    "account-star",
+    "rocket-outline",
+    "rocket-launch",
+    "diamond-outline",
+    "diamond",
+    "trophy-award",
   ];
 
   const screenWidth = Dimensions.get("window").width;
   const badgeMargin = 8;
   const badgeSize = (screenWidth - badgeMargin * 5 - 40) / 4;
+
+  const router = useRouter();
 
   const [totalExercicios, setTotalExercicios] = useState<number>(0);
   const [exerciciosConcluidosCount, setExerciciosConcluidosCount] = useState(0);
@@ -104,11 +94,26 @@ export default function PerfilConquistas() {
     totalExercicios > 0
       ? Math.round((exerciciosConcluidosCount / totalExercicios) * 100)
       : 0;
+  const unlockedBadges = Math.floor(exerciciosConcluidosCount / 5);
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#013974" />
       <View style={styles.headerBackground} />
+      <View style={styles.headerTopButtons}>
+        <MaterialCommunityIcons
+          name="information-outline"
+          size={28}
+          color="#FFF"
+          onPress={() => router.push("/termosDeUso")}
+        />
+        <MaterialCommunityIcons
+          name="cog-outline"
+          size={28}
+          color="#FFF"
+          onPress={() => router.push("/configuracoes")}
+        />
+      </View>
       <View style={styles.headerIconContainer}>
         {fotoUri ? (
           <Image
@@ -133,21 +138,16 @@ export default function PerfilConquistas() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
               Lições Concluídas{" "}
-              <Text style={{ fontWeight: "normal", fontSize: 16, color: "#013974" }}>
+              <Text style={styles.subtitleText}>
                 {exerciciosConcluidosCount} / {totalExercicios}
               </Text>
             </Text>
             <View style={styles.progressBarBackground}>
               <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${percentual}%` },
-                ]}
+                style={[styles.progressBarFill, { width: `${percentual}%` }]}
               />
             </View>
-            <Text style={styles.percentualText}>
-              {percentual}% concluído
-            </Text>
+            <Text style={styles.percentualText}>{percentual}% concluído</Text>
           </View>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Conquistas</Text>
@@ -161,13 +161,15 @@ export default function PerfilConquistas() {
                       width: badgeSize,
                       height: badgeSize,
                       marginRight: (index + 1) % 4 === 0 ? 0 : badgeMargin,
+                      backgroundColor:
+                        index < unlockedBadges ? "#013974" : "#E0E0E0",
                     },
                   ]}
                 >
                   <MaterialCommunityIcons
-                    name={iconName}
+                    name={iconName as any}
                     size={36}
-                    color="#FFF"
+                    color={index < unlockedBadges ? "#FFF" : "#888"}
                   />
                 </View>
               ))}
@@ -192,6 +194,16 @@ const styles = StyleSheet.create({
     height: 800,
     backgroundColor: "#013974",
     zIndex: 1,
+  },
+  headerTopButtons: {
+    position: "absolute",
+    top: Platform.OS === "android" ? StatusBar.currentHeight! + 10 : 40,
+    left: 20,
+    right: 20,
+    zIndex: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   headerIconContainer: {
     marginTop: 100,
@@ -219,14 +231,20 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 15,
     zIndex: 3,
     padding: 20,
+    marginBottom: 35,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
+  },
+  subtitleText: {
+    fontWeight: "normal",
+    fontSize: 16,
+    color: "#013974",
   },
   progressBarBackground: {
     width: "100%",
@@ -252,7 +270,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   badge: {
-    backgroundColor: "#013974",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",

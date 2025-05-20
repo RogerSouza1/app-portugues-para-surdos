@@ -43,15 +43,15 @@ const Index = () => {
             <Text style={styles.buttonText}>Começar</Text>
           </TouchableOpacity>
         </View>
-        <Text>
-          Ao clicar em começar você concorda com os{' '}
+        <Text style={{ textAlign: 'center', marginHorizontal: 25, marginBottom: 25 }}>
+          Ao continuar, estou de acordo com os{' '}
           <Text
             style={{ color: '#013974', textDecorationLine: 'underline' }}
             onPress={() => router.push('/termosDeUso')}
           >
-            termos de uso e política de privacidade
+            Termos de Uso e Política de Privacidade
           </Text>{' '}
-          do aplicativo
+          do Entre Linguas.
         </Text>
       </View>
     </SafeAreaView>

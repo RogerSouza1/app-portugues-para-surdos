@@ -30,6 +30,16 @@ const ModuloCard: React.FC<ModuloCardProps> = ({ modulo }) => {
     }
   };
 
+  const getButtonBackgroundColor = () => {
+    if (modulo.locked) {
+      return "#3a3a3a"; 
+    } else if (modulo.status === "Concluído") {
+      return "#4CAF50"; 
+    } else {
+      return "#013974"; 
+    }
+  };
+
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.9} style={styles.cardContainer}>
       <View style={[styles.card, { backgroundColor: modulo.cor }]}>
@@ -43,27 +53,10 @@ const ModuloCard: React.FC<ModuloCardProps> = ({ modulo }) => {
           <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
             {modulo.tema}
           </Text>
-          {/* Se há status, exibe-o */}
-          {modulo.status !== "" && modulo.status && (
-            <Text
-              style={[
-                styles.status,
-                modulo.status === "Concluído"
-                  ? styles.concluidoStatus
-                  : modulo.status === "Em andamento"
-                  ? styles.emAndamentoStatus
-                  : modulo.status === "Bloqueado"
-                  ? styles.bloqueadoStatus
-                  : {},
-              ]}
-            >
-              {modulo.status}
-            </Text>
-          )}
           <View style={styles.bottomRow}>
-            <View style={styles.playButton}>
+            <View style={[styles.playButton, { backgroundColor: getButtonBackgroundColor() }]}>
               {modulo.locked ? (
-                <MaterialCommunityIcons name="lock" size={35} color="#FFF" />
+                <MaterialCommunityIcons name="lock-outline" size={32} color="#FFF" />
               ) : (
                 <Image
                   source={

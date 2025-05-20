@@ -63,8 +63,8 @@ const Modulos = () => {
       for (let i = 0; i < mappedData.length; i++) {
         if (i > 0 && mappedData[i - 1].status !== "Concluído") {
           mappedData[i].locked = true;
-          mappedData[i].status = "Bloqueado";
-          mappedData[i].cor = "#D9D9D9";
+          mappedData[i].status = "";
+          mappedData[i].cor = "#ffffff";
         }
       }
 
@@ -92,7 +92,7 @@ const Modulos = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#013974" />
       <View style={styles.headerBackground} />
-      <Text style={styles.headerTitle}>Módulos</Text>
+      <Text style={styles.headerTitle}>MÓDULOS</Text>
       <View style={styles.background}>
         {loading ? (
           <ActivityIndicator
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 140,
+    height: 180,
     backgroundColor: "#013974",
     zIndex: 1,
   },
@@ -137,14 +137,14 @@ const styles = StyleSheet.create({
     fontSize: 34,
     fontWeight: "bold",
     color: "#FFF",
-    marginTop: 30,
+    marginTop: 80,
     marginBottom: 30,
     marginLeft: 25,
     zIndex: 2,
   },
   listContainer: {
     paddingTop: 20,
-    paddingBottom: 85,
+    paddingBottom: 90,
     paddingHorizontal: 10,
   },
   columnWrapper: {

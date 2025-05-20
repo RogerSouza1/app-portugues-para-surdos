@@ -1,8 +1,7 @@
 import LoadingError from "@/components/LoadingError";
-import NextButton from "@/components/NextButton";
 import { salvarExercicioConcluido, recuperarExerciciosConcluidos } from "@/utils/storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   Vibration,
   View,
 } from "react-native";
+import ConfettiCannon from 'react-native-confetti-cannon';
 import {
   buscarAlternativas,
   buscarExercicioPorId,
@@ -30,7 +30,9 @@ const Exercicios = () => {
   const [acertou, setAcertou] = useState<boolean | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
-  const [mediaUrl, setMediaUrl] = useState<String>('');
+  const [mediaUrl, setMediaUrl] = useState<string>('');
+
+  const confettiRef = useRef<ConfettiCannon | null>(null);
 
   useEffect(() => {
     async function carregarExercicio() {
@@ -42,29 +44,22 @@ const Exercicios = () => {
         setExercicio(data);
 
         const mediaData = await buscarImagemPorExercicioId(id);
-        if (mediaData.length > 0) {
-          const media = mediaData[0];
-          const url = media.url;
-          setMediaUrl(url);
-        } else {
-          setMediaUrl("https://cdn-icons-png.flaticon.com/512/3273/3273587.png");
-        }
+        setMediaUrl(
+          mediaData.length > 0
+            ? mediaData[0].url
+            : "https://cdn-icons-png.flaticon.com/512/3273/3273587.png"
+        );
 
-        const nome = data.nome || "";
+        const dataAlternativas = await buscarAlternativas(id);
+        setAlternativas(
+          dataAlternativas.map((item: any) => ({
+            opcao: item.alternativa.opcao.trim(),
+            isCorreta: item.is_correta,
+          }))
+        );
 
-          const dataAlternativas = await buscarAlternativas(id);
-          setAlternativas(
-              dataAlternativas.map((item: any) => ({
-                opcao: item.alternativa.opcao.trim(),
-                isCorreta: item.is_correta,
-              }))
-          );
-
-          const resposta = dataAlternativas.find(
-              (item: any) => item.is_correta
-          );
-          setRespostaCorreta(resposta?.alternativa?.opcao?.trim());
-        
+        const correta = dataAlternativas.find((item: any) => item.is_correta);
+        setRespostaCorreta(correta?.alternativa?.opcao?.trim() ?? null);
       } catch (e) {
         console.error("Erro:", e);
         setError(true);
@@ -79,79 +74,101 @@ const Exercicios = () => {
   const handleResposta = (opcao: string) => {
     if (respondido) return;
 
-    Vibration.vibrate(50);
+    setRespondido(true);
     setRespostaUsuario(opcao);
+
     const correta = opcao === respostaCorreta;
     setAcertou(correta);
-    setRespondido(true);
 
     if (correta) {
+      Vibration.vibrate([0, 100, 50, 100]);
       salvarExercicioConcluido(exercicio.id, true);
+      confettiRef.current?.start();
+      setTimeout(() => {
+        router.replace({
+          pathname: "/niveis/[id]" as never,
+          params: { id: exercicio.id_modulo } as never,
+        });
+      }, 3500);
+    } else {
+      Vibration.vibrate([0, 50, 20, 50]);
+      setTimeout(() => {
+        setRespondido(false);
+        setRespostaUsuario(null);
+        setAcertou(null);
+      }, 800);
     }
-    
-    router.replace({
-      pathname: "/niveis/[id]" as never,
-      params: { id: exercicio.id_modulo } as never,
-    });
   };
 
   const handleNavigateToExercicios = () => {
     router.push("/tabs/modulos");
   };
 
-  const corBotao = (opcao: string) => {
-    if (!respondido) return styles.wordButton;
-
-    if (opcao === respostaCorreta)
-      return [styles.wordButton, styles.correta];
-    if (opcao === respostaUsuario && opcao !== respostaCorreta)
-      return [styles.wordButton, styles.errada];
-
+const corBotao = (opcao: string) => {
+  if (!respondido) {
     return styles.wordButton;
-  };
+  }
 
-  const corTexto = (opcao: string) => {
-    if (!respondido) return styles.wordText;
+  if (acertou && opcao === respostaCorreta) {
+    return [styles.wordButton, styles.correta];
+  }
 
-    if (opcao === respostaCorreta)
-      return [styles.wordText, styles.textoCorreto];
-    if (opcao === respostaUsuario && opcao !== respostaCorreta)
-      return [styles.wordText, styles.textoErrado];
+  if (!acertou && opcao === respostaUsuario) {
+    return [styles.wordButton, styles.errada];
+  }
 
+  return styles.wordButton;
+};
+
+const corTexto = (opcao: string) => {
+  if (!respondido) {
     return styles.wordText;
-  };
+  }
+
+  if (acertou && opcao === respostaCorreta) {
+    return [styles.wordText, styles.textoCorreto];
+  }
+
+  if (!acertou && opcao === respostaUsuario) {
+    return [styles.wordText, styles.textoErrado];
+  }
+
+  return styles.wordText;
+};
 
   return (
-      <SafeAreaView style={styles.container}>
-        {loading ? (
-            <Text style={styles.title}>Carregando exercício...</Text>
-        ) : error ? (
-            <LoadingError />
-        ) : (
-            <View style={{ width: "100%", marginTop: 40 }}>
-              <View style={styles.topSection} />
-                    <View style={styles.optionsContainer}>
-                      {alternativas.map((alt, index) => (
-                          <TouchableOpacity
-                              key={index}
-                              style={corBotao(alt.opcao)}
-                              onPress={() => handleResposta(alt.opcao)}
-                              disabled={respondido}
-                          >
-                            <Text style={corTexto(alt.opcao)}>{alt.opcao}</Text>
-                          </TouchableOpacity>
-                      ))}
-                    </View>
-            </View>
-        )}
+    <SafeAreaView style={styles.container}>
+      {loading ? (
+        <Text style={styles.title}>Carregando exercício...</Text>
+      ) : error ? (
+        <LoadingError />
+      ) : (
+        <View style={{ width: "100%", marginTop: 40 }}>
+          <View style={styles.topSection} />
+          <View style={styles.optionsContainer}>
+            {alternativas.map((alt, index) => (
+              <TouchableOpacity
+                key={index}
+                style={corBotao(alt.opcao)}
+                onPress={() => handleResposta(alt.opcao)}
+                disabled={respondido}
+              >
+                <Text style={corTexto(alt.opcao)}>{alt.opcao}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
 
-        {respondido && (
-            <NextButton
-                direction="right"
-                onPress={handleNavigateToExercicios}
-            />
-        )}
-      </SafeAreaView>
+      {acertou && (
+        <ConfettiCannon
+          count={100}
+          origin={{ x: -10, y: 0 }}
+          ref={confettiRef}
+          fadeOut={true}
+        />
+      )}
+    </SafeAreaView>
   );
 };
 
@@ -169,32 +186,26 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     textAlign: "center",
   },
-  subtitle: {
-    fontSize: 18,
-    color: "#013974",
-    marginVertical: 10,
-    textAlign: "center",
-  },
   topSection: {
-    width: "80%",
+    width: "85%",
     height: 400,
     backgroundColor: "#013974",
     borderRadius: 20,
-    marginBottom: 20,
-    marginTop: 40,
+    marginBottom: 40,
     alignSelf: "center",
   },
   optionsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    gap: 10,
     marginTop: 20,
+    rowGap: 20,
+    columnGap: 20,
   },
   wordButton: {
-    width: 128,
-    height: 56,
-    borderRadius: 10,
+    width: 160,
+    height: 64, 
+    borderRadius: 12,
     backgroundColor: "#133558",
     justifyContent: "center",
     alignItems: "center",
@@ -220,10 +231,6 @@ const styles = StyleSheet.create({
   },
   textoErrado: {
     color: "#C62828",
-  },
-  NextButton: {
-    position: "absolute",
-    bottom: 20,
   },
 });
 
