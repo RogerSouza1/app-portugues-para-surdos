@@ -9,6 +9,7 @@ interface LevelCardProps {
     nome: string;
     locked: boolean;
     concluido: boolean;
+    nivel?: string;
   };
   index: number;
 }
@@ -40,15 +41,20 @@ const LevelCard: React.FC<LevelCardProps> = ({ nivel, index }) => {
       disabled={nivel.locked}
     >
       <View style={styles.content}>
-        <Text
-          style={[
-            styles.title,
-            nivel.locked && { color: "#888" },
-            nivel.concluido && { color: "#FFF" },
-          ]}
-        >
-          {index + 1}
-        </Text>
+        <View>
+          <Text
+            style={[
+              styles.title,
+              nivel.locked && { color: "#888" },
+              nivel.concluido && { color: "#FFF" },
+            ]}
+          >
+            {index + 1}
+          </Text>
+          {nivel.nivel && (
+            <Text style={styles.difficulty}>{nivel.nivel}</Text>
+          )}
+        </View>
 
         {nivel.concluido ? (
           <Image
@@ -96,6 +102,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#013974",
+  },
+  difficulty: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
   },
   playIcon: {
     width: 24,
