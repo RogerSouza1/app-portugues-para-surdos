@@ -5,35 +5,37 @@ import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
+  Platform,
+  Image as RNImage,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   View,
-  Platform,
 } from "react-native";
 import { contarTotalExercicios } from "../../services/supabase-query";
 import { recuperarExerciciosConcluidos } from "../../utils/storage";
 
-export default function PerfilConquistas() {
-  const badgeIcons = [
-    "star-outline",
-    "star-half-full",
-    "star",
-    "trophy-outline",
-    "trophy",
-    "crown-outline",
-    "crown",
-    "rocket-outline",
-    "rocket-launch",
-    "diamond-outline",
-    "diamond",
-    "trophy-award",
-  ];
+const badgeImages = [
+  require("../../assets/images/4.png"),        
+  require("../../assets/images/8.png"),        
+  require("../../assets/images/adeus.png"),    
+  require("../../assets/images/16.png"),     
+  require("../../assets/images/20.png"),      
+  require("../../assets/images/familia.png"),     
+  require("../../assets/images/28.png"),       
+  require("../../assets/images/32.png"),       
+  require("../../assets/images/amigo.png"),        
+  require("../../assets/images/40.png"),       
+  require("../../assets/images/44.png"),      
+  require("../../assets/images/calendario.png"),   
+];
 
+export default function PerfilConquistas() {
   const screenWidth = Dimensions.get("window").width;
   const badgeMargin = 8;
-  const badgeSize = (screenWidth - badgeMargin * 5 - 40) / 4;
+  const badgesPerRow = 3;
+  const badgeSize = (screenWidth - badgeMargin * (badgesPerRow + 1) - 40) / badgesPerRow;
 
   const router = useRouter();
 
@@ -94,7 +96,7 @@ export default function PerfilConquistas() {
     totalExercicios > 0
       ? Math.round((exerciciosConcluidosCount / totalExercicios) * 100)
       : 0;
-  const unlockedBadges = Math.floor(exerciciosConcluidosCount / 5);
+  const unlockedBadges = Math.floor(exerciciosConcluidosCount / 4);
 
   return (
     <View style={styles.container}>
@@ -152,7 +154,7 @@ export default function PerfilConquistas() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Conquistas</Text>
             <View style={styles.badgesContainer}>
-              {badgeIcons.map((iconName, index) => (
+              {badgeImages.map((imgSrc, index) => (
                 <View
                   key={index}
                   style={[
@@ -160,17 +162,24 @@ export default function PerfilConquistas() {
                     {
                       width: badgeSize,
                       height: badgeSize,
-                      marginRight: (index + 1) % 4 === 0 ? 0 : badgeMargin,
+                      marginRight: (index + 1) % badgesPerRow === 0 ? 0 : badgeMargin,
                       backgroundColor:
                         index < unlockedBadges ? "#013974" : "#E0E0E0",
                     },
                   ]}
                 >
-                  <MaterialCommunityIcons
-                    name={iconName as any}
-                    size={36}
-                    color={index < unlockedBadges ? "#FFF" : "#888"}
-                  />
+                  {index < unlockedBadges ? (
+                    <RNImage
+                      source={imgSrc}
+                      style={styles.badgeImage}
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="lock-outline"
+                      size={36}
+                      color="#888"
+                    />
+                  )}
                 </View>
               ))}
             </View>
@@ -274,5 +283,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
+    padding: 6,
+  },
+  badgeImage: {
+    width: 32, 
+    height: 32,
+    resizeMode: "contain",
   },
 });
