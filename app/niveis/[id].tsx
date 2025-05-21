@@ -37,9 +37,22 @@ const Niveis = () => {
     async function loadExercicios() {
       try {
         setError(false);
-        const data = await carregarExerciciosComStatus(id);
+      const data = await carregarExerciciosComStatus(id);
 
-      const todosExerciciosOrdenados = data.sort((a, b) => a.ordem - b.ordem);
+      const exerciciosFacil = data.filter(
+        (exercicio: any) => exercicio.nivel === "FÁCIL"
+      );
+      const exerciciosMedio = data.filter(
+        (exercicio: any) => exercicio.nivel === "MÉDIO"
+      );
+      const exerciciosDificil = data.filter(
+        (exercicio: any) => exercicio.nivel === "DIFÍCIL"
+      );
+      const todosExerciciosOrdenados = [
+        ...exerciciosFacil,
+        ...exerciciosMedio,
+        ...exerciciosDificil,
+      ];
 
       const todosExerciciosAtualizados = todosExerciciosOrdenados.map((exercicio, idx) => {
         if (idx === 0) {
@@ -51,8 +64,7 @@ const Niveis = () => {
         };
       });
 
-        setExercicios(todosExerciciosAtualizados);
-
+      setExercicios(todosExerciciosAtualizados);
       } catch (error) {
         console.error("Erro ao carregar níveis:", error);
         setError(true);
@@ -84,7 +96,22 @@ const Niveis = () => {
       async function reloadExercicios() {
         try {
           const data = await carregarExerciciosComStatus(id);
-          const todosExerciciosOrdenados = data.sort((a, b) => a.ordem - b.ordem);
+
+          const exerciciosFacil = data.filter(
+            (exercicio: any) => exercicio.nivel === "FÁCIL"
+          );
+          const exerciciosMedio = data.filter(
+            (exercicio: any) => exercicio.nivel === "MÉDIO"
+          );
+          const exerciciosDificil = data.filter(
+            (exercicio: any) => exercicio.nivel === "DIFÍCIL"
+          );
+          const todosExerciciosOrdenados = [
+            ...exerciciosFacil,
+            ...exerciciosMedio,
+            ...exerciciosDificil,
+          ];
+
           const todosExerciciosAtualizados = todosExerciciosOrdenados.map((exercicio, idx) => {
             if (idx === 0) {
               return { ...exercicio, locked: false };
@@ -142,6 +169,7 @@ const Niveis = () => {
               }
             />
             </View>
+            
         )}
       </View>
     </View>
