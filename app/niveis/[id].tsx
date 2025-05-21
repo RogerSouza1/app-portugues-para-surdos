@@ -79,6 +79,30 @@ const Niveis = () => {
     }, [router])
   );
 
+  useFocusEffect(
+    React.useCallback(() => {
+      async function reloadExercicios() {
+        try {
+          const data = await carregarExerciciosComStatus(id);
+          const todosExerciciosOrdenados = data.sort((a, b) => a.ordem - b.ordem);
+          const todosExerciciosAtualizados = todosExerciciosOrdenados.map((exercicio, idx) => {
+            if (idx === 0) {
+              return { ...exercicio, locked: false };
+            }
+            return {
+              ...exercicio,
+              locked: !todosExerciciosOrdenados[idx - 1].concluido,
+            };
+          });
+          setExercicios(todosExerciciosAtualizados);
+        } catch (error) {
+          console.error("Erro ao recarregar níveis:", error);
+        }
+      }
+      reloadExercicios();
+    }, [id])
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#013974" />
