@@ -1,5 +1,8 @@
 import LoadingError from "@/components/LoadingError";
-import { salvarExercicioConcluido, recuperarExerciciosConcluidos } from "@/utils/storage";
+import {
+  salvarExercicioConcluido,
+  recuperarExerciciosConcluidos,
+} from "@/utils/storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -10,7 +13,7 @@ import {
   Vibration,
   View,
 } from "react-native";
-import ConfettiCannon from 'react-native-confetti-cannon';
+import ConfettiCannon from "react-native-confetti-cannon";
 import {
   buscarAlternativas,
   buscarExercicioPorId,
@@ -30,7 +33,7 @@ const Exercicios = () => {
   const [acertou, setAcertou] = useState<boolean | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
-  const [mediaUrl, setMediaUrl] = useState<string>('');
+  const [mediaUrl, setMediaUrl] = useState<string>("");
 
   const confettiRef = useRef<ConfettiCannon | null>(null);
 
@@ -103,37 +106,37 @@ const Exercicios = () => {
     router.push("/tabs/modulos");
   };
 
-const corBotao = (opcao: string) => {
-  if (!respondido) {
+  const corBotao = (opcao: string) => {
+    if (!respondido) {
+      return styles.wordButton;
+    }
+
+    if (acertou && opcao === respostaCorreta) {
+      return [styles.wordButton, styles.correta];
+    }
+
+    if (!acertou && opcao === respostaUsuario) {
+      return [styles.wordButton, styles.errada];
+    }
+
     return styles.wordButton;
-  }
+  };
 
-  if (acertou && opcao === respostaCorreta) {
-    return [styles.wordButton, styles.correta];
-  }
+  const corTexto = (opcao: string) => {
+    if (!respondido) {
+      return styles.wordText;
+    }
 
-  if (!acertou && opcao === respostaUsuario) {
-    return [styles.wordButton, styles.errada];
-  }
+    if (acertou && opcao === respostaCorreta) {
+      return [styles.wordText, styles.textoCorreto];
+    }
 
-  return styles.wordButton;
-};
+    if (!acertou && opcao === respostaUsuario) {
+      return [styles.wordText, styles.textoErrado];
+    }
 
-const corTexto = (opcao: string) => {
-  if (!respondido) {
     return styles.wordText;
-  }
-
-  if (acertou && opcao === respostaCorreta) {
-    return [styles.wordText, styles.textoCorreto];
-  }
-
-  if (!acertou && opcao === respostaUsuario) {
-    return [styles.wordText, styles.textoErrado];
-  }
-
-  return styles.wordText;
-};
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -203,7 +206,7 @@ const styles = StyleSheet.create({
   },
   wordButton: {
     width: 160,
-    height: 64, 
+    height: 64,
     borderRadius: 12,
     backgroundColor: "#133558",
     justifyContent: "center",
