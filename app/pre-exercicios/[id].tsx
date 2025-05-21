@@ -8,7 +8,7 @@ const PreExercicio = () => {
   const router = useRouter();
 
   const handleNavigateToExercicios = () => {
-    router.push({
+    router.replace({
       pathname: "/exercicios/[id]",
       params: { id }
     });
