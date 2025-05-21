@@ -14,12 +14,12 @@ import LevelCard from "../../components/LevelCard";
 import { buscarExercicios } from "../../services/supabase-query";
 import { recuperarExerciciosConcluidos } from "../../utils/storage";
 
+export const unstable_shouldReload = () => true;
+
 const Niveis = () => {
   const { id, tema } = useLocalSearchParams<{ id: string; tema: string }>();
   const router = useRouter();
-  const [exerciciosFacil, setExerciciosFacil] = useState<any[]>([]);
-  const [exerciciosMedio, setExerciciosMedio] = useState<any[]>([]);
-  const [exerciciosDificil, setExerciciosDificil] = useState<any[]>([]);
+  const [exercicios, setExercicios] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -39,65 +39,24 @@ const Niveis = () => {
         setError(false);
         const data = await carregarExerciciosComStatus(id);
 
-        const exerciciosFacil = data
-          .filter((exercicio) => exercicio.nivel === "FÁCIL")
-          .sort((a, b) => a.ordem - b.ordem)
-          .map((exercicio) => ({ ...exercicio, locked: false }));
+      const todosExerciciosOrdenados = data.sort((a, b) => a.ordem - b.ordem);
 
-        const desbloqueadoFacil =
-          exerciciosFacil.length > 0 &&
-          exerciciosFacil.every((exercicio) => exercicio.concluido);
-
-        const exerciciosMedio = data
-          .filter((exercicio) => exercicio.nivel === "MÉDIO")
-          .sort((a, b) => a.ordem - b.ordem)
-          .map((exercicio) => ({ ...exercicio, locked: !desbloqueadoFacil }));
-
-        const desbloqueadoMedio =
-          desbloqueadoFacil &&
-          exerciciosMedio.length > 0 &&
-          exerciciosMedio.every((exercicio) => exercicio.concluido);
-
-        const exerciciosDificil = data
-          .filter((exercicio) => exercicio.nivel === "DIFÍCIL")
-          .sort((a, b) => a.ordem - b.ordem)
-          .map((exercicio) => ({ ...exercicio, locked: !desbloqueadoMedio }));
-
-        const todosExercicios = [
-          ...exerciciosFacil,
-          ...exerciciosMedio,
-          ...exerciciosDificil,
-        ];
-
-        const exerciciosComIndice = todosExercicios.map((exercicio, idx) => ({
+      const todosExerciciosAtualizados = todosExerciciosOrdenados.map((exercicio, idx) => {
+        if (idx === 0) {
+          return { ...exercicio, locked: false };
+        }
+        return {
           ...exercicio,
-          globalIndex: idx + 1,
-        }));
-
-        const novaSecaoFacil = {
-          title: "FÁCIL",
-          data: exerciciosComIndice.filter((ex) => ex.nivel === "FÁCIL"),
+          locked: !todosExerciciosOrdenados[idx - 1].concluido,
         };
+      });
 
-        const novaSecaoMedio = {
-          title: "MÉDIO",
-          data: exerciciosComIndice.filter((ex) => ex.nivel === "MÉDIO"),
-        };
+        setExercicios(todosExerciciosAtualizados);
 
-        const novaSecaoDificil = {
-          title: "DIFÍCIL",
-          data: exerciciosComIndice.filter((ex) => ex.nivel === "DIFÍCIL"),
-        };
-
-        setExerciciosFacil(novaSecaoFacil.data);
-        setExerciciosMedio(novaSecaoMedio.data);
-        setExerciciosDificil(novaSecaoDificil.data);
       } catch (error) {
         console.error("Erro ao carregar níveis:", error);
         setError(true);
-        setExerciciosFacil([]);
-        setExerciciosMedio([]);
-        setExerciciosDificil([]);
+        setExercicios([]);
       } finally {
         setLoading(false);
       }
@@ -113,11 +72,10 @@ const Niveis = () => {
         return true;
       };
 
-      const subscription = BackHandler.addEventListener(
-        "hardwareBackPress",
-        onBackPress
-      );
-      return () => subscription.remove();
+      const backHandler = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+      return () => {
+        backHandler.remove();
+      };
     }, [router])
   );
 
@@ -138,35 +96,28 @@ const Niveis = () => {
         ) : error ? (
           <LoadingError />
         ) : (
-          <View>
+            <View>
             <SectionList
               sections={[
-                ...(exerciciosFacil.length > 0
-                  ? [{ data: exerciciosFacil }]
-                  : []),
-                ...(exerciciosMedio.length > 0
-                  ? [{ data: exerciciosMedio }]
-                  : []),
-                ...(exerciciosDificil.length > 0
-                  ? [{ data: exerciciosDificil }]
-                  : []),
+              { title: "", data: exercicios }
               ]}
               keyExtractor={(item, index) =>
-                item.id?.toString() || index.toString()
+              item.id?.toString() || index.toString()
               }
-              renderItem={({ item }) => (
-                <LevelCard
-                  key={item.id}
-                  nivel={item}
-                  index={item.globalIndex - 1}
-                />
+              renderItem={({ item, index }) => (
+              <LevelCard
+                key={item.id}
+                nivel={item}
+                index={index}
+              />
               )}
+              renderSectionHeader={() => null}
               contentContainerStyle={styles.listContainer}
               ListEmptyComponent={
-                <Text style={styles.emptyText}>Nenhum nível disponível</Text>
+              <Text style={styles.emptyText}>Nenhum nível disponível</Text>
               }
             />
-          </View>
+            </View>
         )}
       </View>
     </View>

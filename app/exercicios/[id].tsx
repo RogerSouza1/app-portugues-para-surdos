@@ -51,13 +51,15 @@ const Exercicios = () => {
         );
 
         const dataAlternativas = await buscarAlternativas(id);
-        setAlternativas(
-          dataAlternativas.map((item: any) => ({
-            opcao: item.alternativa.opcao.trim(),
-            isCorreta: item.is_correta,
-          }))
-        );
+        const alternativasMapeadas = dataAlternativas.map((item: any) => ({
+          opcao: item.alternativa.opcao.trim(),
+          isCorreta: item.is_correta,
+        }));
 
+        const alternativasEmbaralhadas = alternativasMapeadas.sort(() => Math.random() - 0.5);
+
+        setAlternativas(alternativasEmbaralhadas);
+        
         const correta = dataAlternativas.find((item: any) => item.is_correta);
         setRespostaCorreta(correta?.alternativa?.opcao?.trim() ?? null);
       } catch (e) {
@@ -85,10 +87,7 @@ const Exercicios = () => {
       salvarExercicioConcluido(exercicio.id, true);
       confettiRef.current?.start();
       setTimeout(() => {
-        router.replace({
-          pathname: "/niveis/[id]" as never,
-          params: { id: exercicio.id_modulo } as never,
-        });
+        router.back();
       }, 3500);
     } else {
       Vibration.vibrate([0, 50, 20, 50]);

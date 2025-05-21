@@ -40,7 +40,6 @@ const LevelCard: React.FC<LevelCardProps> = ({ nivel, index }) => {
       disabled={nivel.locked}
     >
       <View style={styles.content}>
-        {/* Aqui exibimos o índice +1 em vez do nome */}
         <Text
           style={[
             styles.title,
