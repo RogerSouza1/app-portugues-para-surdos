@@ -51,9 +51,6 @@ const LevelCard: React.FC<LevelCardProps> = ({ nivel, index }) => {
           >
             {index + 1}
           </Text>
-          {nivel.nivel && (
-            <Text style={styles.difficulty}>{nivel.nivel}</Text>
-          )}
         </View>
 
         {nivel.concluido ? (
