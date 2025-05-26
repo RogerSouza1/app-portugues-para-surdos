@@ -36,7 +36,7 @@ const Index = () => {
               style={styles.logo}
             />
           </View>
-          <Text style={styles.title}>Entre Linguas</Text>
+          <Text style={styles.title}>Entre Línguas</Text>
         </View>
         <View style={styles.bottomSection}>
           <TouchableOpacity style={styles.button} onPress={handleStart}>

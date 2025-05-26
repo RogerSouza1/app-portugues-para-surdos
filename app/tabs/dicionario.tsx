@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  FlatList,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -58,14 +58,15 @@ export default function Dicionario() {
             Nenhuma palavra aprendida ainda...
           </Text>
         ) : (
-          <FlatList
-            data={alternativasCorretas}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
+          >
+            {alternativasCorretas.map((item, index) => (
               <TouchableOpacity
+                key={index}
                 style={styles.card}
                 onPress={() =>
-                  // Fazer a tela de detalhe e direcionamento do dicionario
                   router.push({
                     pathname: "../dicionario/[id]",
                     params: { id: item.exercicioId },
@@ -74,9 +75,8 @@ export default function Dicionario() {
               >
                 <Text style={styles.cardText}>{item.opcao}</Text>
               </TouchableOpacity>
-            )}
-            contentContainerStyle={styles.listContainer}
-          />
+            ))}
+          </ScrollView>
         )}
       </View>
     </View>
