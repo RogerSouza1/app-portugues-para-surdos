@@ -55,7 +55,7 @@ export default function Dicionario() {
           <Text style={{ textAlign: "center" }}>Carregando...</Text>
         ) : alternativasCorretas.length === 0 ? (
           <Text style={{ textAlign: "center" }}>
-            Nenhuma alternativa correta encontrada.
+            Nenhuma palavra aprendida ainda...
           </Text>
         ) : (
           <FlatList
