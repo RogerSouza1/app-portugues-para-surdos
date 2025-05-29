@@ -1,10 +1,20 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
 import { useEvent } from "expo";
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, Image, Dimensions, Button } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useVideoPlayer, VideoView } from "expo-video";
+import { useRef, useState } from "react";
+import {
+  Animated,
+  Dimensions,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import Bullets from "../../components/Bullets";
 import NextButton from "../../components/NextButton";
-import { buscarMidia } from "../../services/supabase-query"
+import { buscarMidia } from "../../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");
 
@@ -13,6 +23,9 @@ const PreExercicio = () => {
   const [media, setMedia] = useState<any[]>([]);
   const [videoSource, setVideoSource] = useState<string | null>(null);
   const router = useRouter();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
 
   async function carregarMidia(id: string) {
     const midia = await buscarMidia(id);
@@ -21,7 +34,7 @@ const PreExercicio = () => {
         setVideoSource(item.url);
       }
     }
-    
+
     midia.sort((a, b) => a.ordem - b.ordem);
     setMedia(midia);
   }
@@ -31,37 +44,55 @@ const PreExercicio = () => {
   const handleNavigateToExercicios = () => {
     router.replace({
       pathname: "/exercicios/[id]",
-      params: { id }
+      params: { id },
     });
   };
 
-  const player = useVideoPlayer(videoSource, player => {
+  const player = useVideoPlayer(videoSource, (player) => {
     player.loop = false;
     player.play();
   });
 
-  const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
+  const { isPlaying } = useEvent(player, "playingChange", {
+    isPlaying: player.playing,
+  });
 
   const handleRestart = () => {
     player.currentTime = 0;
     player.play();
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Pré Exercício {id}</Text>
         {media.length > 0 && (
-          <View style={{ height: 200, marginBottom: 20 }}>
+          <View style={styles.carouselContainer}>
             <ScrollView
+              ref={scrollViewRef}
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
               style={{ flex: 1 }}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                {
+                  useNativeDriver: false,
+                  listener: (
+                    event: import("react-native").NativeSyntheticEvent<
+                      import("react-native").NativeScrollEvent
+                    >
+                  ) => {
+                    const index = Math.round(
+                      event.nativeEvent.contentOffset.x / width
+                    );
+                    setCurrentIndex(index);
+                  },
+                }
+              )}
+              scrollEventThrottle={16}
             >
-              {media.map((item: any, idx: number) => (
-                <View key={idx} style={{ width: 300, height: 200, justifyContent: "center", alignItems: "center" }}>
+              {media.map((item, idx) => (
+                <View key={idx} style={styles.card}>
                   {item.tipo === "video_libras" ? (
                     <View style={styles.contentContainer}>
                       <VideoView
@@ -69,33 +100,27 @@ const PreExercicio = () => {
                         player={player}
                         allowsFullscreen
                       />
-                      <View style={styles.controlsContainer}>
-                        <Button
-                          title="🔄 Reiniciar"
-                          onPress={handleRestart}
-                        />
-                        <Button
-                          title={isPlaying ? '⏸️ Pausar' : '▶️ Reproduzir'}
-                          onPress={() => {
-                            if (isPlaying) {
-                              player.pause();
-                            } else {
-                              player.play();
-                            }
-                          }}
-                        />
-                      </View>
                     </View>
                   ) : (
                     <Image
                       source={{ uri: item.url }}
-                      style={{ width: 280, height: 180, borderRadius: 10 }}
+                      style={styles.image}
                       resizeMode="cover"
                     />
                   )}
                 </View>
               ))}
             </ScrollView>
+            <View style={styles.bulletsContainer}>
+              <Bullets
+                total={media.length}
+                currentIndex={currentIndex}
+                scrollX={scrollX}
+              />
+            </View>
+            <Text style={styles.exerciseName}>
+              {(media[currentIndex]?.nome || "").replace(/_/g, " ")}
+            </Text>
           </View>
         )}
       </View>
@@ -113,31 +138,51 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: "center",
-    paddingHorizontal: 20,
+    width: "100%",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#013974",
-    marginBottom: 20,
+  carouselContainer: {
+    width: width,
+    height: height * 0.73,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  description: {
-    fontSize: 16,
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 20,
+  card: {
+    width: width * 0.9,
+    height: height * 0.6,
+    backgroundColor: "#013974",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    overflow: "hidden",
+    padding: 10,
+    marginHorizontal: 20,
   },
   contentContainer: {
-    width: width * 0.9,
-    height: height * 0.45,
+    width: "100%",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
   video: {
-    width: "100%",
-    height: "80%",
+    width: "95%",
+    height: "97%",
     backgroundColor: "#000",
-    borderRadius: 16,
+    borderRadius: 20,
+  },
+  image: {
+    width: "95%",
+    height: "97%",
+    borderRadius: 20,
+    backgroundColor: "#000",
+  },
+  bulletsContainer: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   controlsContainer: {
     marginTop: 20,
@@ -145,7 +190,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     width: "60%",
-  }
+  },
+  exerciseName: {
+    marginTop: 40,
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#013974",
+    textAlign: "center",
+    maxWidth: width * 0.8,
+  },
 });
 
 export default PreExercicio;
