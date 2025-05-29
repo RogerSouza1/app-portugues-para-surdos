@@ -1,67 +1,65 @@
+import { useEvent } from "expo";
 import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import { useVideoPlayer, VideoView } from 'expo-video';
+import React from "react";
 import {
-  Animated,
-  Dimensions,
-  FlatList,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Text,
+    Button,
+    Dimensions,
+    SafeAreaView,
+    StyleSheet,
+    View
 } from "react-native";
-import Bullets from "../components/Bullets";
-import Card from "../components/Card";
 import NextButton from "../components/NextButton";
 
 const { width, height } = Dimensions.get("window");
 
-const images = [
-  require("../assets/images/image1.jpg"),
-  require("../assets/images/image1.jpg"),
-];
-
 const OnBoarding = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
-  const scrollX = useRef(new Animated.Value(0)).current;
   const router = useRouter();
 
-  const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const index = Math.round(event.nativeEvent.contentOffset.x / width);
-    setCurrentIndex(index);
-  };
+  const videoSource = "https://voxbpjzqmefmnnbjqqgm.supabase.co/storage/v1/object/sign/media/Introducao/completo_comprimido.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcxZDIzMGViLWQ1NTUtNDA3MC1hZTc4LTI3NTA0ZjRjN2U4NSJ9.eyJ1cmwiOiJtZWRpYS9JbnRyb2R1Y2FvL2NvbXBsZXRvX2NvbXByaW1pZG8ubXA0IiwiaWF0IjoxNzQ4NDkxMTY5LCJleHAiOjE3ODAwMjcxNjl9.c5T6Tbz_OOUhLk4vD_NlMBde5BFWmbi7DxXvSjFyRyo";
+  
+  const player = useVideoPlayer(videoSource, player => {
+    player.loop = false;
+    player.play();
+  });
+
+  const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
 
   const handleNext = () => {
-    if (currentIndex === images.length - 1) {
-      router.replace({ pathname: "/tabs/modulos" });
-    } else {
-      flatListRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-    }
+    router.replace({ pathname: "/tabs/modulos" });
+  };
+
+  const handleRestart = () => {
+    player.currentTime = 0;
+    player.play();
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.contentWrapper}>
-        <Animated.FlatList
-          ref={flatListRef}
-          data={images}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={handleMomentumScrollEnd}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            { useNativeDriver: false }
-          )}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => <Card image={item} />}
-          contentContainerStyle={styles.flatListContent}
-        />
-
-        <Bullets total={images.length} currentIndex={currentIndex} scrollX={scrollX} />
+        <View style={styles.contentContainer}>
+          <VideoView 
+            style={styles.video} 
+            player={player} 
+            allowsFullscreen
+          />
+          <View style={styles.controlsContainer}>
+            <Button
+              title="🔄 Reiniciar"
+              onPress={handleRestart}
+            />
+            <Button
+              title={isPlaying ? '⏸️ Pausar' : '▶️ Reproduzir'}
+              onPress={() => {
+                if (isPlaying) {
+                  player.pause();
+                } else {
+                  player.play();
+                }
+              }}
+            />
+          </View>
+        </View>
       </View>
 
       <NextButton direction="right" onPress={handleNext} />
@@ -78,12 +76,28 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     height: height * 0.55,
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
     marginBottom: 120,
   },
-  flatListContent: {
+  contentContainer: {
+    width: width * 0.9,
+    height: height * 0.45,
+    justifyContent: "center",
     alignItems: "center",
+  },
+  video: {
+    width: "100%",
+    height: "80%",
+    backgroundColor: "#000",
+    borderRadius: 16,
+  },
+  controlsContainer: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "60%",
   },
 });
 
