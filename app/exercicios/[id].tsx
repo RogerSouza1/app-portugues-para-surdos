@@ -3,7 +3,9 @@ import {
   salvarExercicioConcluido,
   recuperarExerciciosConcluidos,
 } from "@/utils/storage";
+import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useVideoPlayer, VideoView } from 'expo-video';
 import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
@@ -12,14 +14,18 @@ import {
   TouchableOpacity,
   Vibration,
   View,
+  Dimensions,
+  Button
 } from "react-native";
 import ConfettiCannon from "react-native-confetti-cannon";
 import {
   buscarAlternativas,
   buscarExercicioPorId,
   buscarExercicios,
-  buscarImagemPorExercicioId,
+  buscarVideoExercicioPorId,
 } from "../../services/supabase-query";
+
+const { width, height } = Dimensions.get("window");
 
 const Exercicios = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -46,7 +52,7 @@ const Exercicios = () => {
         const data = await buscarExercicioPorId(id);
         setExercicio(data);
 
-        const mediaData = await buscarImagemPorExercicioId(id);
+        const mediaData = await buscarVideoExercicioPorId(id);
         setMediaUrl(
           mediaData.length > 0
             ? mediaData[0].url
@@ -62,7 +68,7 @@ const Exercicios = () => {
         const alternativasEmbaralhadas = alternativasMapeadas.sort(() => Math.random() - 0.5);
 
         setAlternativas(alternativasEmbaralhadas);
-        
+
         const correta = dataAlternativas.find((item: any) => item.is_correta);
         setRespostaCorreta(correta?.alternativa?.opcao?.trim() ?? null);
       } catch (e) {
@@ -75,6 +81,18 @@ const Exercicios = () => {
 
     if (id) carregarExercicio();
   }, [id]);
+
+  const player = useVideoPlayer(mediaUrl, player => {
+    player.loop = false;
+    player.play();
+  });
+
+  const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
+
+  const handleRestart = () => {
+    player.currentTime = 0;
+    player.play();
+  };
 
   const handleResposta = (opcao: string) => {
     if (respondido) return;
@@ -146,7 +164,29 @@ const Exercicios = () => {
         <LoadingError />
       ) : (
         <View style={{ width: "100%", marginTop: 40 }}>
-          <View style={styles.topSection} />
+          <View style={styles.contentContainer}>
+            <VideoView
+              style={styles.video}
+              player={player}
+              allowsFullscreen
+            />
+            <View style={styles.controlsContainer}>
+              <Button
+                title="🔄 Reiniciar"
+                onPress={handleRestart}
+              />
+              <Button
+                title={isPlaying ? '⏸️ Pausar' : '▶️ Reproduzir'}
+                onPress={() => {
+                  if (isPlaying) {
+                    player.pause();
+                  } else {
+                    player.play();
+                  }
+                }}
+              />
+            </View>
+          </View>
           <View style={styles.optionsContainer}>
             {alternativas.map((alt, index) => (
               <TouchableOpacity
@@ -234,6 +274,25 @@ const styles = StyleSheet.create({
   textoErrado: {
     color: "#C62828",
   },
+  contentContainer: {
+    width: width * 0.9,
+    height: height * 0.45,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  video: {
+    width: "100%",
+    height: "80%",
+    backgroundColor: "#000",
+    borderRadius: 16,
+  },
+  controlsContainer: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "60%",
+  }
 });
 
 export default Exercicios;
