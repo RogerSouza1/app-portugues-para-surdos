@@ -1,7 +1,6 @@
 import LoadingError from "@/components/LoadingError";
 import {
-  salvarExercicioConcluido,
-  recuperarExerciciosConcluidos,
+  salvarExercicioConcluido
 } from "@/utils/storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -17,8 +16,7 @@ import ConfettiCannon from "react-native-confetti-cannon";
 import {
   buscarAlternativas,
   buscarExercicioPorId,
-  buscarExercicios,
-  buscarImagemPorExercicioId,
+  buscarImagemPorExercicioId
 } from "../../services/supabase-query";
 
 const Exercicios = () => {
@@ -95,10 +93,8 @@ const Exercicios = () => {
     } else {
       Vibration.vibrate([0, 50, 20, 50]);
       setTimeout(() => {
-        setRespondido(false);
-        setRespostaUsuario(null);
-        setAcertou(null);
-      }, 800);
+        router.back();
+      }, 600);
     }
   };
 
