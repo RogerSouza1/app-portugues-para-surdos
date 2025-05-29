@@ -151,6 +151,8 @@ const PreExercicio = () => {
               player={player}
               allowsFullscreen={false}
               allowsPictureInPicture={false}
+              nativeControls={false}
+              pointerEvents="none"
               contentFit="contain"
             />
           </View>

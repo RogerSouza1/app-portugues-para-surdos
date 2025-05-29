@@ -95,6 +95,7 @@ const DicionarioDetalhes = () => {
   const player = useVideoPlayer(mediaUrl, (player) => {
     player.loop = false;
     player.muted = false;
+    player.play();
   });
 
   const { isPlaying } = useEvent(player, "playingChange", {
@@ -149,6 +150,8 @@ const DicionarioDetalhes = () => {
               player={player}
               allowsFullscreen={false}
               allowsPictureInPicture={false}
+              nativeControls={false}
+              pointerEvents="none"
               contentFit="contain"
             />
           </View>

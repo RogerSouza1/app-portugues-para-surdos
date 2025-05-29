@@ -82,14 +82,40 @@ const Exercicios = () => {
 
   const player = useVideoPlayer(mediaUrl, player => {
     player.loop = false;
+    player.muted = false;
     player.play();
   });
 
   const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
 
   const handleRestart = () => {
-    player.currentTime = 0;
-    player.play();
+    try {
+      if (player) {
+        player.currentTime = 0;
+        player.play();
+      }
+    } catch (error) {
+      console.warn("Erro ao reiniciar vídeo:", error);
+    }
+  };
+
+  const handlePlayPause = () => {
+    try {
+      if (player) {
+        if (isPlaying) {
+          player.pause();
+        } else {
+          if (player.currentTime >= player.duration) {
+            player.currentTime = 0;
+            player.play();
+          } else {
+            player.play();
+          }
+        }
+      }
+    } catch (error) {
+      console.warn("Erro ao controlar reprodução:", error);
+    }
   };
 
   const handleResposta = (opcao: string) => {
@@ -116,9 +142,19 @@ const Exercicios = () => {
     }
   };
 
-  const handleNavigateToExercicios = () => {
-    router.push("/tabs/modulos");
-  };
+  // Cleanup do player
+  useEffect(() => {
+    return () => {
+      if (player) {
+        try {
+          player.pause();
+          player.release();
+        } catch (error) {
+          console.warn("Erro ao limpar player:", error);
+        }
+      }
+    };
+  }, [player]);
 
   const corBotao = (opcao: string) => {
     if (!respondido) {
@@ -165,30 +201,22 @@ const Exercicios = () => {
               <VideoView
                 style={styles.video}
                 player={player}
-                allowsFullscreen
+                allowsFullscreen={false}
+                allowsPictureInPicture={false}
+                nativeControls={false}
+                pointerEvents="none"
+                contentFit="contain"
               />
-            </View>
-            <View style={styles.controlsContainer}>
-              <TouchableOpacity onPress={handleRestart} style={styles.iconButton}>
-                <Ionicons name="refresh" size={32} color="#013974" />
+               <View style={styles.controlsContainer}>
+              <TouchableOpacity onPress={handleRestart} style={styles.controlButton}>
+                <Ionicons name="refresh" size={28} color="#FFF" />
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  if (isPlaying) {
-                    player.pause();
-                  } else {
-                    player.play();
-                  }
-                }}
-                style={styles.iconButton}
-              >
-                <Ionicons
-                  name={isPlaying ? "pause" : "play"}
-                  size={32}
-                  color="#013974"
-                />
+              <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
+                <Ionicons name={isPlaying ? "pause" : "play"} size={28} color="#FFF" />
               </TouchableOpacity>
             </View>
+            </View>
+           
           </View>
           <View style={styles.optionsContainer}>
             {alternativas.map((alt, index) => (
@@ -222,6 +250,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F7F9FA",
     alignItems: "center",
+    justifyContent: "center",
     padding: 20,
   },
   title: {
@@ -231,21 +260,14 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     textAlign: "center",
   },
-  topSection: {
-    width: "85%",
-    height: 400,
-    backgroundColor: "#013974",
-    borderRadius: 20,
-    marginBottom: 40,
-    alignSelf: "center",
-  },
   optionsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 30,
     rowGap: 20,
     columnGap: 20,
+    paddingHorizontal: 10,
   },
   wordButton: {
     width: 160,
@@ -264,6 +286,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#FFFFFF",
     fontWeight: "500",
+    textAlign: "center",
   },
   correta: {
     backgroundColor: "#C8E6C9",
@@ -278,41 +301,55 @@ const styles = StyleSheet.create({
     color: "#C62828",
   },
   contentContainer: {
-    width: width * 0.9,
-    height: height * 0.60,
-    justifyContent: "center",
+    width: "100%",
     alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
   },
   videoFrame: {
-    width: "75%",
-    height: "80%",
+    width: width * 0.85,
+    height: height * 0.45,
     backgroundColor: "#013974",
-    borderRadius: 35,
-    padding: 5,
+    borderRadius: 20,
+    padding: 15,
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   video: {
-    width: "77%",
-    height: "95%",
-    borderRadius: 20,
+    width: "100%",
+    height: "80%",
+    borderRadius: 15,
     backgroundColor: "#013974",
   },
   controlsContainer: {
-    marginTop: 20,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    width: "60%",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    width: "100%",
+    marginTop: 8,
   },
-  iconButton: {
-    padding: 10,
-    borderRadius: 50,
-    backgroundColor: "#F7F9FA",
-    elevation: 2,
-    marginHorizontal: 10,
-  }
+  controlButton: {
+    padding: 14,
+    borderRadius: 30,
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    minWidth: 56,
+    minHeight: 56,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
 });
 
 export default Exercicios;
