@@ -53,7 +53,6 @@ export async function buscarMidia(exercicio_uuid: string) {
       .from("media")
       .select("*")
       .eq("id_exercicio", exercicio_uuid);
-
     if (error) throw error;
     return data;
   }
