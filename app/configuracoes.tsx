@@ -44,6 +44,8 @@ const Configuracoes = () => {
       await AsyncStorage.setItem("@profile", JSON.stringify(usuario));
       await carregarPreferenciasUsuario();
       Alert.alert("Sucesso", "Preferências salvas com sucesso!");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      router.push("/tabs/perfilConquistas");
     } catch (error) {
       Alert.alert("Erro", "Não foi possível salvar as preferências.");
     }
