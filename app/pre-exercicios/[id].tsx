@@ -50,7 +50,6 @@ const PreExercicio = () => {
 
   const player = useVideoPlayer(videoSource, (player) => {
     player.loop = false;
-    player.play();
   });
 
   const { isPlaying } = useEvent(player, "playingChange", {
@@ -65,6 +64,10 @@ const PreExercicio = () => {
   const handleNext = () => {
     if (currentIndex < media.length - 1) {
       scrollViewRef.current?.scrollTo({ x: width * (currentIndex + 1), animated: true });
+      if (media[currentIndex + 1].tipo === "video_libras") {
+        player.currentTime = 0;
+        player.play();
+      }
     } else {
       handleNavigateToExercicios();
     }
