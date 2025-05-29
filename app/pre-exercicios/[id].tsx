@@ -1,7 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -10,6 +11,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Bullets from "../../components/Bullets";
@@ -24,54 +26,168 @@ const PreExercicio = () => {
   const [videoSource, setVideoSource] = useState<string | null>(null);
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState<number | null>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef<ScrollView>(null);
 
-  async function carregarMidia(id: string) {
-    const midia = await buscarMidia(id);
-    for (const item of midia) {
-      if (item.tipo === "video_libras") {
-        setVideoSource(item.url);
+  useEffect(() => {
+    async function carregarMidia() {
+      try {
+        setLoading(true);
+        const midia = await buscarMidia(id);
+
+        let videoIndex = null;
+        for (let i = 0; i < midia.length; i++) {
+          if (midia[i].tipo === "video_libras") {
+            setVideoSource(midia[i].url);
+            videoIndex = i;
+            break;
+          }
+        }
+
+        setCurrentVideoIndex(videoIndex);
+        midia.sort((a, b) => a.ordem - b.ordem);
+        setMedia(midia);
+      } catch (error) {
+        console.error("Erro ao carregar mídia:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
-    midia.sort((a, b) => a.ordem - b.ordem);
-    setMedia(midia);
-  }
-
-  carregarMidia(id);
-
-  const handleNavigateToExercicios = () => {
-    router.replace({
-      pathname: "/exercicios/[id]",
-      params: { id },
-    });
-  };
+    if (id) {
+      carregarMidia();
+    }
+  }, [id]);
 
   const player = useVideoPlayer(videoSource, (player) => {
     player.loop = false;
+    player.muted = false;
   });
 
   const { isPlaying } = useEvent(player, "playingChange", {
     isPlaying: player.playing,
   });
 
+  const handleNavigateToExercicios = () => {
+    try {
+      if (player) {
+        player.pause();
+      }
+    } catch (error) {
+      console.warn("Erro ao pausar player:", error);
+    }
+
+    router.replace({
+      pathname: "/exercicios/[id]",
+      params: { id },
+    });
+  };
+
   const handleRestart = () => {
-    player.currentTime = 0;
-    player.play();
+    try {
+      if (player) {
+        player.currentTime = 0;
+        player.play();
+      }
+    } catch (error) {
+      console.warn("Erro ao reiniciar vídeo:", error);
+    }
+  };
+
+  const handlePlayPause = () => {
+    try {
+      if (player) {
+        if (isPlaying) {
+          player.pause();
+        } else {
+          if (player.currentTime >= player.duration) {
+            player.currentTime = 0;
+            player.play();
+          } else {
+            player.play();
+          }
+
+        }
+      }
+    } catch (error) {
+      console.warn("Erro ao controlar reprodução:", error);
+    }
   };
 
   const handleNext = () => {
     if (currentIndex < media.length - 1) {
-      scrollViewRef.current?.scrollTo({ x: width * (currentIndex + 1), animated: true });
-      if (media[currentIndex + 1].tipo === "video_libras") {
-        player.currentTime = 0;
-        player.play();
-      }
+      scrollViewRef.current?.scrollTo({
+        x: width * (currentIndex + 1),
+        animated: true
+      });
     } else {
       handleNavigateToExercicios();
     }
   };
+
+  // Cleanup do player
+  useEffect(() => {
+    return () => {
+      if (player) {
+        try {
+          player.pause();
+          player.release();
+        } catch (error) {
+          console.warn("Erro ao limpar player:", error);
+        }
+      }
+    };
+  }, [player]);
+
+  const renderMediaItem = (item: any, index: number) => {
+    if (item.tipo === "video_libras") {
+      return (
+        <View style={styles.card}>
+          <View style={styles.contentContainer}>
+            <VideoView
+              style={styles.video}
+              player={player}
+              allowsFullscreen={false}
+              allowsPictureInPicture={false}
+              contentFit="contain"
+            />
+          </View>
+          <View style={styles.controlsContainer}>
+            <TouchableOpacity onPress={handleRestart} style={styles.controlButton}>
+              <Ionicons name="refresh" size={28} color="#FFF" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
+              <Ionicons name={isPlaying ? "pause" : "play"} size={28} color="#FFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.card}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri: item.url }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+      );
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Carregando exercício...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -88,11 +204,7 @@ const PreExercicio = () => {
                 [{ nativeEvent: { contentOffset: { x: scrollX } } }],
                 {
                   useNativeDriver: false,
-                  listener: (
-                    event: import("react-native").NativeSyntheticEvent<
-                      import("react-native").NativeScrollEvent
-                    >
-                  ) => {
+                  listener: (event: import("react-native").NativeSyntheticEvent<import("react-native").NativeScrollEvent>) => {
                     const index = Math.round(
                       event.nativeEvent.contentOffset.x / width
                     );
@@ -101,27 +213,15 @@ const PreExercicio = () => {
                 }
               )}
               scrollEventThrottle={16}
+              decelerationRate="fast"
             >
               {media.map((item, idx) => (
-                <View key={idx} style={styles.card}>
-                  {item.tipo === "video_libras" ? (
-                    <View style={styles.contentContainer}>
-                      <VideoView
-                        style={styles.video}
-                        player={player}
-                        allowsFullscreen
-                      />
-                    </View>
-                  ) : (
-                    <Image
-                      source={{ uri: item.url }}
-                      style={styles.image}
-                      resizeMode="cover"
-                    />
-                  )}
+                <View key={idx} style={styles.slideContainer}>
+                  {renderMediaItem(item, idx)}
                 </View>
               ))}
             </ScrollView>
+
             <View style={styles.bulletsContainer}>
               <Bullets
                 total={media.length}
@@ -129,6 +229,7 @@ const PreExercicio = () => {
                 scrollX={scrollX}
               />
             </View>
+
             <Text style={styles.exerciseName}>
               {(media[currentIndex]?.nome || "").replace(/_/g, " ")}
             </Text>
@@ -151,15 +252,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 18,
+    color: "#013974",
+    fontWeight: "500",
+  },
   carouselContainer: {
     width: width,
     height: height * 0.73,
     alignItems: "center",
     justifyContent: "center",
   },
+  slideContainer: {
+    width: width,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
   card: {
     width: width * 0.9,
-    height: height * 0.6,
     backgroundColor: "#013974",
     borderRadius: 20,
     justifyContent: "center",
@@ -170,40 +286,54 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     overflow: "hidden",
-    padding: 10,
-    marginHorizontal: 20,
   },
   contentContainer: {
     width: "100%",
-    height: "100%",
+    height: height * 0.5,
     justifyContent: "center",
     alignItems: "center",
+    padding: 10,
   },
   video: {
-    width: "76%",
-    height: "98%",
-    backgroundColor: "#013974",
-    borderRadius: 20,
+    width: "100%",
+    height: "100%",
+    borderRadius: 15,
+  },
+  imageContainer: {
+    width: "100%",
+    height: height * 0.5,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
   },
   image: {
-    width: "95%",
-    height: "97%",
-    borderRadius: 20,
+    width: "100%",
+    height: "100%",
+    borderRadius: 15,
     backgroundColor: "#000",
+  },
+  controlsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    width: "100%",
+  },
+  controlButton: {
+    padding: 12,
+    borderRadius: 25,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    minWidth: 52,
+    alignItems: "center",
   },
   bulletsContainer: {
     alignItems: "center",
     justifyContent: "center",
-  },
-  controlsContainer: {
     marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    width: "60%",
   },
   exerciseName: {
-    marginTop: 40,
+    marginTop: 20,
     fontSize: 20,
     fontWeight: "bold",
     color: "#013974",

@@ -1,14 +1,12 @@
 import LoadingError from "@/components/LoadingError";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useVideoPlayer, VideoView } from "expo-video";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
-  Button,
   Dimensions,
   Image,
   SafeAreaView,
@@ -17,7 +15,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import Bullets from "../../components/Bullets";
 import {
@@ -97,7 +95,6 @@ const DicionarioDetalhes = () => {
   const player = useVideoPlayer(mediaUrl, (player) => {
     player.loop = false;
     player.muted = false;
-    player.play();
   });
 
   const { isPlaying } = useEvent(player, "playingChange", {
@@ -155,14 +152,14 @@ const DicionarioDetalhes = () => {
               contentFit="contain"
             />
           </View>
-            <View style={styles.controlsContainer}>
-            <TouchableOpacity onPress={handleRestart} style={{ marginHorizontal: 10 }}>
-              <Ionicons name="refresh" size={32} color="#FFF" />
+          <View style={styles.controlsContainer}>
+            <TouchableOpacity onPress={handleRestart} style={styles.controlButton}>
+              <Ionicons name="refresh" size={28} color="#FFF" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handlePlayPause} style={{ marginHorizontal: 10 }}>
-              <Ionicons name={isPlaying ? "pause" : "play"} size={32} color="#FFF" />
+            <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
+              <Ionicons name={isPlaying ? "pause" : "play"} size={28} color="#FFF" />
             </TouchableOpacity>
-            </View>
+          </View>
         </View>
       );
     } else {
@@ -192,7 +189,6 @@ const DicionarioDetalhes = () => {
           <LoadingError />
         ) : (
           <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-            {/* Palavra */}
             <View style={styles.wordContainer}>
               <Text style={styles.wordTitle}>Palavra:</Text>
               <Text style={styles.wordText}>{palavraCorreta}</Text>
@@ -207,6 +203,7 @@ const DicionarioDetalhes = () => {
                   pagingEnabled
                   showsHorizontalScrollIndicator={false}
                   style={styles.mediaScrollView}
+                  contentContainerStyle={styles.scrollContentContainer}
                   onScroll={Animated.event(
                     [{ nativeEvent: { contentOffset: { x: scrollX } } }],
                     {
@@ -214,7 +211,7 @@ const DicionarioDetalhes = () => {
                       listener: (event: any) => {
                         const nativeEvent = (event as import("react-native").NativeSyntheticEvent<import("react-native").NativeScrollEvent>).nativeEvent;
                         const index = Math.round(
-                          nativeEvent.contentOffset.x / (width * 0.85)
+                          nativeEvent.contentOffset.x / width
                         );
                         setCurrentIndex(index);
                       },
@@ -222,10 +219,14 @@ const DicionarioDetalhes = () => {
                   )}
                   scrollEventThrottle={16}
                   decelerationRate="fast"
-                  snapToInterval={width * 0.85}
-                  snapToAlignment="center"
+                  snapToInterval={width}
+                  snapToAlignment="start"
                 >
-                  {media.map((item, index) => renderMediaItem(item, index))}
+                  {media.map((item, index) => (
+                    <View key={index} style={styles.slideContainer}>
+                      {renderMediaItem(item, index)}
+                    </View>
+                  ))}
                 </ScrollView>
 
                 {/* Bullets para navegação */}
@@ -238,14 +239,6 @@ const DicionarioDetalhes = () => {
                     />
                   </View>
                 )}
-              </View>
-            )}
-
-            {/* Informações adicionais */}
-            {exercicio.pergunta && (
-              <View style={styles.infoContainer}>
-                <Text style={styles.infoTitle}>Contexto:</Text>
-                <Text style={styles.infoText}>{exercicio.pergunta}</Text>
               </View>
             )}
 
@@ -352,17 +345,24 @@ const styles = StyleSheet.create({
     color: "#013974",
   },
   carouselContainer: {
-    width: width,
     marginBottom: 20,
   },
   mediaScrollView: {
     flex: 1,
   },
+  scrollContentContainer: {
+    alignItems: "center",
+  },
+  slideContainer: {
+    width: width,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
   mediaCard: {
-    width: width * 0.85,
+    width: width * 0.9,
     backgroundColor: "#013974",
     borderRadius: 20,
-    marginHorizontal: width * 0.075,
     overflow: "hidden",
     elevation: 5,
     shadowColor: "#000",
@@ -400,25 +400,34 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
   },
-  mediaName: {
+  controlButton: {
+    padding: 10,
+    borderRadius: 25,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
+  imageNameContainer: {
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  },
+  imageName: {
     color: "#FFF",
     fontSize: 16,
     fontWeight: "500",
     textAlign: "center",
-    padding: 15,
   },
   bulletsContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 15,
+    marginTop: 20,
+    marginBottom: 10,
   },
   currentMediaName: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#013974",
     textAlign: "center",
-    marginTop: 10,
     marginHorizontal: 20,
+    marginBottom: 10,
   },
   infoContainer: {
     backgroundColor: "#FFF",
