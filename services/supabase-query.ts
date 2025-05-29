@@ -105,12 +105,12 @@ export async function buscarMidia(exercicio_uuid: string) {
     return data;
   }
 
-  export async function buscarImagemPorExercicioId(id: string) {
+  export async function buscarVideoExercicioPorId(id: string) {
     const { data, error } = await supabase
       .from('media')
-      .select('*')
+      .select('url')
       .eq('id_exercicio', id)
-      .eq('tipo', 'media_pergunta')
+      .eq('tipo', 'video_libras')
   
     if (error) throw error;
     return data;
