@@ -1,6 +1,7 @@
+import { recuperarPreferenciasModulo, salvarPreferenciasModulo } from "@/utils/storage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface Modulo {
@@ -21,12 +22,25 @@ interface ModuloCardProps {
 const ModuloCard: React.FC<ModuloCardProps> = ({ modulo }) => {
   const router = useRouter();
 
-  const handlePress = () => {
+  const [primeiroAcesso, setPrimeiroAcesso] = useState(false); 
+
+  const handlePress = async () => {
     if (!modulo.locked) {
-      router.push({
+
+      const preferencias = await recuperarPreferenciasModulo(modulo.id);
+
+      if (!preferencias || preferencias.primeiro_acesso === false || preferencias.primeiro_acesso == null) {
+        await salvarPreferenciasModulo(modulo.id, { primeiro_acesso: true });
+        router.push({
+        pathname: "/pre-modulo/[id]" as never,
+        params: { id: modulo.id, tema: modulo.tema },
+      });
+      } else if (preferencias.primeiro_acesso === true) {
+        router.push({
         pathname: "/niveis/[id]" as never,
         params: { id: modulo.id, tema: modulo.tema },
       });
+      }
     }
   };
 

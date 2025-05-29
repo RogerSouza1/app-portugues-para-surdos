@@ -115,5 +115,21 @@ export async function buscarMidia(exercicio_uuid: string) {
     if (error) throw error;
     return data;
   }
+
+  export async function buscarVideoModuloPorId(id: string){
+    const {data, error} = await supabase
+    .from('modulo')
+    .select('tema')
+    .eq('id', id)
+    if (error) throw error;
+    const tema = data[0].tema;
+
+    const { data: dataVideo, error: errorVideo } = await supabase
+    .from('media')
+    .select('url')
+    .eq('nome', tema)
+    if (errorVideo) throw errorVideo;
+    return dataVideo[0].url;
+  }
   
 

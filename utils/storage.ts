@@ -69,3 +69,23 @@ export async function recuperarExerciciosConcluidos() {
     return {};
   }
 }
+
+export async function salvarPreferenciasModulo(id_modulo: string, preferencias: any) {
+  try {
+    const key = `@preferencias_modulo_${id_modulo}`;
+    await AsyncStorage.setItem(key, JSON.stringify(preferencias));
+  } catch (error) {
+    console.error('Erro ao salvar preferências do módulo:', error);
+  }
+}
+
+export async function recuperarPreferenciasModulo(id_modulo: string) {
+  try {
+    const key = `@preferencias_modulo_${id_modulo}`;
+    const jsonValue = await AsyncStorage.getItem(key);
+    return jsonValue ? JSON.parse(jsonValue) : null;
+  } catch (error) {
+    console.error('Erro ao recuperar preferências do módulo:', error);
+    return null;
+  }
+}
