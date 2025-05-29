@@ -43,11 +43,11 @@ const Configuracoes = () => {
       const usuario = { nome, fotoUri };
       await AsyncStorage.setItem("@profile", JSON.stringify(usuario));
       await carregarPreferenciasUsuario();
-      Alert.alert("Sucesso", "Preferências salvas com sucesso!");
+      Alert.alert("Sucesso", "Alterações salvas com sucesso!");
       await new Promise((resolve) => setTimeout(resolve, 1000));
       router.push("/tabs/perfilConquistas");
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível salvar as preferências.");
+      Alert.alert("Erro", "Não foi possível salvar suas alterações.");
     }
   };
 
@@ -98,7 +98,7 @@ const Configuracoes = () => {
       </View>
 
       <TouchableOpacity style={styles.botaoSalvar} onPress={salvarPreferenciasUsuario}>
-        <Text style={styles.botaoSalvarText}>Salvar Preferências</Text>
+        <Text style={styles.botaoSalvarText}>Salvar alterações</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -106,7 +106,7 @@ const Configuracoes = () => {
         onPress={async () => {
           Alert.alert(
             "Resetar Progresso",
-            "Tem certeza que deseja apagar todo o armazenamento local?",
+            "Tem certeza que deseja apagar todo o seu progesso e começar do zero?",
             [
               { text: "Cancelar", style: "cancel" },
               {
@@ -120,6 +120,7 @@ const Configuracoes = () => {
                       "Sucesso",
                       "Progresso resetado! A aplicação será reiniciada."
                     );
+                    await new Promise((resolve) => setTimeout(resolve, 1000));                    
                     await Updates.reloadAsync();
                   } catch (error) {
                     Alert.alert("Erro", "Não foi possível resetar o progresso.");

@@ -32,7 +32,7 @@ export default function RootLayout() {
         <Stack.Screen name="pre-modulo/[id]" options={{ title: '' }} />
         <Stack.Screen name="exercicios/[id]" options={{ title: '' }} />
         <Stack.Screen name="configuracoes" options={{ title: 'Configurações' }} />
-        <Stack.Screen name="termosDeUso" options={{ title: 'Termos de Uso' }} />
+        <Stack.Screen name="termosDeUso" options={{ title: 'Termos de Uso e Privacidade' }} />
         <Stack.Screen name="tabs" options={{ headerShown: false }} /> 
       </Stack>
     </PaperProvider>

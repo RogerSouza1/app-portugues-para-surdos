@@ -131,7 +131,12 @@ const PreModulo = () => {
                     if (isPlaying) {
                       player.pause();
                     } else {
-                      player.play();
+                      if (player.currentTime >= player.duration) {
+                        player.currentTime = 0;
+                        player.play();
+                      } else {
+                        player.play();
+                      }
                     }
                   }}
                   style={styles.iconButton}

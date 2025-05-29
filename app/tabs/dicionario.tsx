@@ -107,7 +107,7 @@ export default function Dicionario() {
         <StatusBar barStyle="light-content" backgroundColor="#013974" />
         <View style={styles.headerBackground} />
         <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>Dicionário</Text>
+          <Text style={styles.headerTitle}>DICIONÁRIO</Text>
         </View>
         <View style={styles.background}>
           <View style={styles.loadingContainer}>
@@ -125,7 +125,7 @@ export default function Dicionario() {
       {/* Header */}
       <View style={styles.headerBackground} />
       <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>Dicionário</Text>
+        <Text style={styles.headerTitle}>DICIONÁRIO</Text>
         <Text style={styles.headerSubtitle}>
           {alternativasCorretas.length} palavras aprendidas
         </Text>
@@ -161,7 +161,6 @@ export default function Dicionario() {
                   activeOpacity={0.7}
                 >
                   <Text style={styles.palavraTexto}>{alternativa.opcao}</Text>
-                  <Text style={styles.palavraSubtexto}>Toque para ver o vídeo</Text>
                 </TouchableOpacity>
               ))}
             </View>

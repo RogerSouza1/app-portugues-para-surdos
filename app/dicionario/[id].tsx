@@ -115,7 +115,12 @@ const DicionarioDetalhes = () => {
       if (isPlaying) {
         player.pause();
       } else {
-        player.play();
+        if (player.currentTime >= player.duration) {
+          player.currentTime = 0;
+          player.play();
+        } else {
+          player.play();
+        }
       }
     } catch (error) {
       console.warn("Erro ao controlar reprodução:", error);
