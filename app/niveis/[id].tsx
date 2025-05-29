@@ -80,7 +80,7 @@ const Niveis = () => {
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
-        router.replace("/tabs/modulos");
+        router.back();
         return true;
       };
 
