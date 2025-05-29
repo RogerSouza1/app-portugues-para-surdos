@@ -28,6 +28,7 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" options={{ title: 'Boas Vindas' }} />
         <Stack.Screen name="niveis/[id]" options={{ title: '' }} />
         <Stack.Screen name="pre-exercicios/[id]" options={{ title: '' }} />
+        <Stack.Screen name="dicionario/[id]" options={{ title: '' }} />
         <Stack.Screen name="pre-modulo/[id]" options={{ title: '' }} />
         <Stack.Screen name="exercicios/[id]" options={{ title: '' }} />
         <Stack.Screen name="configuracoes" options={{ title: 'Configurações' }} />

@@ -2,6 +2,7 @@ import LoadingError from "@/components/LoadingError";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useVideoPlayer, VideoView } from "expo-video";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -154,13 +155,14 @@ const DicionarioDetalhes = () => {
               contentFit="contain"
             />
           </View>
-          <View style={styles.controlsContainer}>
-            <Button title="🔄 Reiniciar" onPress={handleRestart} />
-            <Button
-              title={isPlaying ? "⏸️ Pausar" : "▶️ Reproduzir"}
-              onPress={handlePlayPause}
-            />
-          </View>
+            <View style={styles.controlsContainer}>
+            <TouchableOpacity onPress={handleRestart} style={{ marginHorizontal: 10 }}>
+              <Ionicons name="refresh" size={32} color="#FFF" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handlePlayPause} style={{ marginHorizontal: 10 }}>
+              <Ionicons name={isPlaying ? "pause" : "play"} size={32} color="#FFF" />
+            </TouchableOpacity>
+            </View>
         </View>
       );
     } else {
@@ -180,19 +182,6 @@ const DicionarioDetalhes = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#013974" />
-
-      {/* Header */}
-      <View style={styles.headerBackground} />
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={28} color="#FFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail">
-          {palavraCorreta || "Dicionário"}
-        </Text>
-      </View>
-
       <View style={styles.background}>
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -222,9 +211,10 @@ const DicionarioDetalhes = () => {
                     [{ nativeEvent: { contentOffset: { x: scrollX } } }],
                     {
                       useNativeDriver: false,
-                      listener: (event) => {
+                      listener: (event: any) => {
+                        const nativeEvent = (event as import("react-native").NativeSyntheticEvent<import("react-native").NativeScrollEvent>).nativeEvent;
                         const index = Math.round(
-                          event.nativeEvent.contentOffset.x / (width * 0.85)
+                          nativeEvent.contentOffset.x / (width * 0.85)
                         );
                         setCurrentIndex(index);
                       },
@@ -245,7 +235,6 @@ const DicionarioDetalhes = () => {
                       total={media.length}
                       currentIndex={currentIndex}
                       scrollX={scrollX}
-                      itemWidth={width * 0.85}
                     />
                   </View>
                 )}
