@@ -2,26 +2,25 @@ import LoadingError from "@/components/LoadingError";
 import {
   salvarExercicioConcluido
 } from "@/utils/storage";
+import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useVideoPlayer, VideoView } from 'expo-video';
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Dimensions,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   Vibration,
-  View,
-  Dimensions,
-  Button
+  View
 } from "react-native";
 import ConfettiCannon from "react-native-confetti-cannon";
 import {
   buscarAlternativas,
   buscarExercicioPorId,
-  buscarExercicios,
-  buscarVideoExercicioPorId,
+  buscarVideoExercicioPorId
 } from "../../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");
@@ -162,18 +161,18 @@ const Exercicios = () => {
       ) : (
         <View style={{ width: "100%", marginTop: 40 }}>
           <View style={styles.contentContainer}>
-            <VideoView
-              style={styles.video}
-              player={player}
-              allowsFullscreen
-            />
-            <View style={styles.controlsContainer}>
-              <Button
-                title="🔄 Reiniciar"
-                onPress={handleRestart}
+            <View style={styles.videoFrame}>
+              <VideoView
+                style={styles.video}
+                player={player}
+                allowsFullscreen
               />
-              <Button
-                title={isPlaying ? '⏸️ Pausar' : '▶️ Reproduzir'}
+            </View>
+            <View style={styles.controlsContainer}>
+              <TouchableOpacity onPress={handleRestart} style={styles.iconButton}>
+                <Ionicons name="refresh" size={32} color="#013974" />
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => {
                   if (isPlaying) {
                     player.pause();
@@ -181,7 +180,14 @@ const Exercicios = () => {
                     player.play();
                   }
                 }}
-              />
+                style={styles.iconButton}
+              >
+                <Ionicons
+                  name={isPlaying ? "pause" : "play"}
+                  size={32}
+                  color="#013974"
+                />
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.optionsContainer}>
@@ -273,15 +279,25 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     width: width * 0.9,
-    height: height * 0.45,
+    height: height * 0.60,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  videoFrame: {
+    width: "75%",
+    height: "80%",
+    backgroundColor: "#013974",
+    borderRadius: 35,
+    padding: 5,
+    overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
   },
   video: {
-    width: "100%",
-    height: "80%",
-    backgroundColor: "#000",
-    borderRadius: 16,
+    width: "77%",
+    height: "95%",
+    borderRadius: 20,
+    backgroundColor: "#013974",
   },
   controlsContainer: {
     marginTop: 20,
@@ -289,6 +305,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     width: "60%",
+  },
+  iconButton: {
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: "#F7F9FA",
+    elevation: 2,
+    marginHorizontal: 10,
   }
 });
 

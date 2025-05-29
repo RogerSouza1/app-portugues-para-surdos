@@ -62,6 +62,14 @@ const PreExercicio = () => {
     player.play();
   };
 
+  const handleNext = () => {
+    if (currentIndex < media.length - 1) {
+      scrollViewRef.current?.scrollTo({ x: width * (currentIndex + 1), animated: true });
+    } else {
+      handleNavigateToExercicios();
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -124,7 +132,7 @@ const PreExercicio = () => {
           </View>
         )}
       </View>
-      <NextButton direction="right" onPress={handleNavigateToExercicios} />
+      <NextButton direction="right" onPress={handleNext} />
     </SafeAreaView>
   );
 };
@@ -169,9 +177,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   video: {
-    width: "95%",
-    height: "97%",
-    backgroundColor: "#000",
+    width: "76%",
+    height: "98%",
+    backgroundColor: "#013974",
     borderRadius: 20,
   },
   image: {
