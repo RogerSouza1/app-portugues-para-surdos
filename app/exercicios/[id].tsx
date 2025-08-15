@@ -5,8 +5,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useVideoPlayer, VideoView } from 'expo-video';
-import React, { useEffect, useRef, useState } from "react";
+import { VideoView } from 'expo-video';
+import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   SafeAreaView,
@@ -17,6 +17,7 @@ import {
   View
 } from "react-native";
 import ConfettiCannon from "react-native-confetti-cannon";
+import { useSafeVideoPlayer } from "../../hooks/useSafeVideoPlayer";
 import {
   buscarAlternativas,
   buscarExercicioPorId,
@@ -80,7 +81,7 @@ const Exercicios = () => {
     if (id) carregarExercicio();
   }, [id]);
 
-  const player = useVideoPlayer(mediaUrl, player => {
+  const { player, safePause, safePlay, safeRelease } = useSafeVideoPlayer(mediaUrl, player => {
     player.loop = false;
     player.muted = false;
     player.play();
@@ -89,32 +90,30 @@ const Exercicios = () => {
   const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
 
   const handleRestart = () => {
-    try {
-      if (player) {
+    if (player) {
+      try {
         player.currentTime = 0;
-        player.play();
+        safePlay();
+      } catch (error) {
+        console.warn("Erro ao reiniciar vídeo:", error);
       }
-    } catch (error) {
-      console.warn("Erro ao reiniciar vídeo:", error);
     }
   };
 
   const handlePlayPause = () => {
-    try {
-      if (player) {
+    if (player) {
+      try {
         if (isPlaying) {
-          player.pause();
+          safePause();
         } else {
           if (player.currentTime >= player.duration) {
             player.currentTime = 0;
-            player.play();
-          } else {
-            player.play();
           }
+          safePlay();
         }
+      } catch (error) {
+        console.warn("Erro ao controlar reprodução:", error);
       }
-    } catch (error) {
-      console.warn("Erro ao controlar reprodução:", error);
     }
   };
 
@@ -145,16 +144,9 @@ const Exercicios = () => {
   // Cleanup do player
   useEffect(() => {
     return () => {
-      if (player) {
-        try {
-          player.pause();
-          player.release();
-        } catch (error) {
-          console.warn("Erro ao limpar player:", error);
-        }
-      }
+      safeRelease();
     };
-  }, [player]);
+  }, [safeRelease]);
 
   const corBotao = (opcao: string) => {
     if (!respondido) {
