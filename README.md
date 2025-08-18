@@ -146,13 +146,6 @@ profiles           # Perfis dos usuários
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 👥 Equipe
-
-- **Roger Souza** - Desenvolvedor Principal - [@RogerSouza1](https://github.com/RogerSouza1)
-
-## 📞 Suporte
-
-Para suporte, abra uma issue no GitHub ou entre em contato através do email: [seu-email@exemplo.com]
 
 ---
 
