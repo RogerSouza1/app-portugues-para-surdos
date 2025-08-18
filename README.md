@@ -1,50 +1,152 @@
-# Welcome to your Expo app 👋
+# 📱 App Português para Surdos
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Um aplicativo educacional desenvolvido com React Native e Expo para ensinar português para pessoas surdas através de Libras.
 
-## Get started
+## 🚀 Tecnologias Utilizadas
 
-1. Install dependencies
+- **React Native** - Framework para desenvolvimento mobile
+- **Expo** - Plataforma para desenvolvimento React Native
+- **TypeScript** - Linguagem tipada
+- **Expo Router** - Navegação baseada em arquivos
+- **Supabase** - Backend como serviço (BaaS)
+- **React Native Paper** - Biblioteca de UI Components
+- **Expo AV** - Para reprodução de vídeos
+- **AsyncStorage** - Armazenamento local
 
+## 📁 Estrutura do Projeto
+
+```
+app-portugues-para-surdos/
+├── app/                    # Páginas (Expo Router)
+│   ├── tabs/              # Navegação em abas
+│   ├── exercicios/        # Telas de exercícios
+│   ├── niveis/            # Telas de níveis
+│   └── ...
+├── components/            # Componentes reutilizáveis
+├── hooks/                 # Hooks customizados
+├── lib/                   # Configurações de bibliotecas
+├── services/              # Serviços da API
+├── utils/                 # Funções utilitárias
+├── types/                 # Definições de tipos TypeScript
+├── constants/             # Constantes da aplicação
+└── assets/               # Imagens, fontes, etc.
+```
+
+## 🛠️ Configuração do Ambiente
+
+### Pré-requisitos
+
+- Node.js (v16 ou superior)
+- npm ou yarn
+- Expo CLI
+- Conta no Supabase
+
+### Instalação
+
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/RogerSouza1/app-portugues-para-surdos.git
+   cd app-portugues-para-surdos
+   ```
+
+2. **Instale as dependências**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. **Configure as variáveis de ambiente**
    ```bash
-   npx expo start
+   cp .env.example .env
+   ```
+   
+   Edite o arquivo `.env` com suas credenciais do Supabase:
+   ```
+   EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
-In the output, you'll find options to open the app in a
+4. **Inicie o servidor de desenvolvimento**
+   ```bash
+   npm start
+   ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 📱 Scripts Disponíveis
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- `npm start` - Inicia o servidor de desenvolvimento
+- `npm run start:clear` - Inicia com cache limpo
+- `npm run start:tunnel` - Inicia com túnel (útil para problemas de rede)
+- `npm run android` - Abre no Android
+- `npm run ios` - Abre no iOS
+- `npm run web` - Abre no navegador
+- `npm run lint` - Executa o linter
+- `npm run type-check` - Verifica tipos TypeScript
 
-## Get a fresh project
+## 🔧 Funcionalidades
 
-When you're ready, run:
+### ✅ Implementadas
+- **Autenticação** - Sistema de login/logout
+- **Módulos Educacionais** - Organização por temas
+- **Exercícios Interativos** - Multiple choice com vídeos em Libras
+- **Progresso do Usuário** - Acompanhamento de exercícios concluídos
+- **Dicionário** - Consulta de palavras em Libras
+- **Interface Acessível** - Design focado na acessibilidade
 
-```bash
-npm run reset-project
+### 🚧 Em Desenvolvimento
+- Sistema de gamificação
+- Exercícios de escrita
+- Reconhecimento de gestos
+- Modo offline
+
+## 🎯 Arquitetura
+
+### Gerenciamento de Estado
+- **Local**: AsyncStorage para dados persistentes
+- **Remoto**: Supabase para dados sincronizados
+- **Hooks customizados** para lógica de negócio
+
+### Tratamento de Erros
+- **ErrorBoundary** para captura global de erros
+- **Try/catch** em todas as operações assíncronas
+- **Logs estruturados** para debugging
+
+### Performance
+- **Lazy loading** de componentes
+- **Otimização de imagens** com Expo Image
+- **Cache** de dados do Supabase
+
+## 🔒 Segurança
+
+- Validação de entrada de dados
+- Sanitização de URLs de mídia
+- Row Level Security no Supabase
+- Headers customizados para API
+
+## 📊 Database Schema (Supabase)
+
+```sql
+-- Principais tabelas
+modulo              # Módulos educacionais
+exercicio           # Exercícios dos módulos
+exercicio_alternativa  # Alternativas dos exercícios
+alternativa         # Opções de resposta
+media              # Vídeos e imagens
+dicionario         # Palavras do dicionário
+profiles           # Perfis dos usuários
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🤝 Contribuindo
 
-## Learn more
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📄 Licença
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## Join the community
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**Desenvolvido com ❤️ para a comunidade surda**

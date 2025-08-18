@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useVideoPlayer, VideoView } from "expo-video";
+import { VideoView } from "expo-video";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import Bullets from "../../components/Bullets";
 import NextButton from "../../components/NextButton";
+import { useSafeVideoPlayer } from "../../hooks/useSafeVideoPlayer";
 import { buscarMidia } from "../../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");
@@ -61,7 +62,7 @@ const PreExercicio = () => {
     }
   }, [id]);
 
-  const player = useVideoPlayer(videoSource, (player) => {
+  const { player, safePause, safePlay, safeRelease } = useSafeVideoPlayer(videoSource || "", (player) => {
     player.loop = false;
     player.muted = false;
   });
@@ -71,13 +72,7 @@ const PreExercicio = () => {
   });
 
   const handleNavigateToExercicios = () => {
-    try {
-      if (player) {
-        player.pause();
-      }
-    } catch (error) {
-      console.warn("Erro ao pausar player:", error);
-    }
+    safePause();
 
     router.replace({
       pathname: "/exercicios/[id]",
@@ -89,7 +84,7 @@ const PreExercicio = () => {
     try {
       if (player) {
         player.currentTime = 0;
-        player.play();
+        safePlay();
       }
     } catch (error) {
       console.warn("Erro ao reiniciar vídeo:", error);
@@ -97,22 +92,19 @@ const PreExercicio = () => {
   };
 
   const handlePlayPause = () => {
-    try {
-      if (player) {
+    if (player) {
+      try {
         if (isPlaying) {
-          player.pause();
+          safePause();
         } else {
           if (player.currentTime >= player.duration) {
             player.currentTime = 0;
-            player.play();
-          } else {
-            player.play();
           }
-
+          safePlay();
         }
+      } catch (error) {
+        console.warn("Erro ao controlar reprodução:", error);
       }
-    } catch (error) {
-      console.warn("Erro ao controlar reprodução:", error);
     }
   };
 
@@ -130,16 +122,9 @@ const PreExercicio = () => {
   // Cleanup do player
   useEffect(() => {
     return () => {
-      if (player) {
-        try {
-          player.pause();
-          player.release();
-        } catch (error) {
-          console.warn("Erro ao limpar player:", error);
-        }
-      }
+      safeRelease();
     };
-  }, [player]);
+  }, [safeRelease]);
 
   const renderMediaItem = (item: any, index: number) => {
     if (item.tipo === "video_libras") {

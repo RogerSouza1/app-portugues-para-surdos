@@ -2,19 +2,20 @@ import LoadingError from "@/components/LoadingError";
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useVideoPlayer, VideoView } from 'expo-video';
-import React, { useEffect, useState } from "react";
+import { VideoView } from 'expo-video';
+import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Dimensions,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Dimensions,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import NextButton from "../../components/NextButton";
+import { useSafeVideoPlayer } from "../../hooks/useSafeVideoPlayer";
 import { buscarVideoModuloPorId } from "../../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");
@@ -56,7 +57,7 @@ const PreModulo = () => {
     if (id) carregarVideoModulo();
   }, [id]);
 
-  const player = useVideoPlayer(mediaUrl, player => {
+  const { player, safePause, safePlay, safeRelease } = useSafeVideoPlayer(mediaUrl, player => {
     player.loop = false;
     player.muted = false;
     player.play();
@@ -65,8 +66,14 @@ const PreModulo = () => {
   const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
 
   const handleRestart = () => {
-    player.currentTime = 0;
-    player.play();
+    if (player) {
+      try {
+        player.currentTime = 0;
+        safePlay();
+      } catch (error) {
+        console.warn("Erro ao reiniciar vídeo:", error);
+      }
+    }
   };
 
   const goToNiveis = () => {
@@ -82,15 +89,9 @@ const PreModulo = () => {
 
   useEffect(() => {
     return () => {
-      if (player) {
-        try {
-          player.release();
-        } catch (error) {
-          console.warn("Erro ao limpar player:", error);
-        }
-      }
+      safeRelease();
     };
-  }, [player]);
+  }, [safeRelease]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -128,14 +129,18 @@ const PreModulo = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
-                    if (isPlaying) {
-                      player.pause();
-                    } else {
-                      if (player.currentTime >= player.duration) {
-                        player.currentTime = 0;
-                        player.play();
-                      } else {
-                        player.play();
+                    if (player) {
+                      try {
+                        if (isPlaying) {
+                          safePause();
+                        } else {
+                          if (player.currentTime >= player.duration) {
+                            player.currentTime = 0;
+                          }
+                          safePlay();
+                        }
+                      } catch (error) {
+                        console.warn("Erro ao controlar reprodução:", error);
                       }
                     }
                   }}

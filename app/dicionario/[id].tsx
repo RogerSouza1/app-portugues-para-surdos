@@ -1,28 +1,28 @@
 import LoadingError from "@/components/LoadingError";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useVideoPlayer, VideoView } from "expo-video";
-import React, { useEffect, useRef, useState } from "react";
+import { VideoView } from "expo-video";
+import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Animated,
-  Dimensions,
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Animated,
+    Dimensions,
+    Image,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import Bullets from "../../components/Bullets";
+import { useSafeVideoPlayer } from "../../hooks/useSafeVideoPlayer";
 import {
-  buscarAlternativas,
-  buscarExercicioPorId,
-  buscarMidia,
-  buscarVideoExercicioPorId,
+    buscarAlternativas,
+    buscarExercicioPorId,
+    buscarMidia,
+    buscarVideoExercicioPorId,
 } from "../../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");
@@ -92,7 +92,7 @@ const DicionarioDetalhes = () => {
     if (id) carregarDetalhes();
   }, [id]);
 
-  const player = useVideoPlayer(mediaUrl, (player) => {
+  const { player, safePause, safePlay, safeRelease } = useSafeVideoPlayer(mediaUrl || "", (player) => {
     player.loop = false;
     player.muted = false;
   });
@@ -102,28 +102,30 @@ const DicionarioDetalhes = () => {
   });
 
   const handleRestart = () => {
-    try {
-      player.currentTime = 0;
-      player.play();
-    } catch (error) {
-      console.warn("Erro ao reiniciar vídeo:", error);
+    if (player) {
+      try {
+        player.currentTime = 0;
+        safePlay();
+      } catch (error) {
+        console.warn("Erro ao reiniciar vídeo:", error);
+      }
     }
   };
 
   const handlePlayPause = () => {
-    try {
-      if (isPlaying) {
-        player.pause();
-      } else {
-        if (player.currentTime >= player.duration) {
-          player.currentTime = 0;
-          player.play();
+    if (player) {
+      try {
+        if (isPlaying) {
+          safePause();
         } else {
-          player.play();
+          if (player.currentTime >= player.duration) {
+            player.currentTime = 0;
+          }
+          safePlay();
         }
+      } catch (error) {
+        console.warn("Erro ao controlar reprodução:", error);
       }
-    } catch (error) {
-      console.warn("Erro ao controlar reprodução:", error);
     }
   };
 
@@ -134,15 +136,9 @@ const DicionarioDetalhes = () => {
   // Cleanup do player
   useEffect(() => {
     return () => {
-      if (player) {
-        try {
-          player.release();
-        } catch (error) {
-          console.warn("Erro ao limpar player:", error);
-        }
-      }
+      safeRelease();
     };
-  }, [player]);
+  }, [safeRelease]);
 
   const renderMediaItem = (item: any, index: number) => {
     if (item.tipo === "video_libras") {

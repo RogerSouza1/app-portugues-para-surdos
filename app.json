@@ -1,15 +1,25 @@
 {
   "expo": {
-    "name": "app-portugues-para-surdos",
+    "name": "Português para Surdos",
     "slug": "app-portugues-para-surdos",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "appportuguesparasurdos",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "sdkVersion": "53.0.0",
+    "platforms": ["ios", "android", "web"],
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rogersouza1.appportuguesparasurdos"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +27,13 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.rogersouza1.appportuguesparasurdos"
+      "package": "com.rogersouza1.appportuguesparasurdos",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -34,13 +50,22 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      "expo-web-browser",
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/SpaceMono-Regular.ttf"]
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "router": {},
+      "router": {
+        "origin": false
+      },
       "eas": {
         "projectId": "e0af40c2-4a0e-4cc1-a37b-0d6c98a78e23"
       }
