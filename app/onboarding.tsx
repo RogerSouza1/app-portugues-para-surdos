@@ -10,14 +10,26 @@ import {
   View
 } from "react-native";
 import NextButton from "../components/NextButton";
+import {buscarOnboarding} from "../services/supabase-query";
+import { use, useEffect, useState } from "react";
 
 const { width, height } = Dimensions.get("window");
 
 const OnBoarding = () => {
-  const router = useRouter();
+  const router = useRouter(); 
 
-  const videoSource =
-    "https://voxbpjzqmefmnnbjqqgm.supabase.co/storage/v1/object/sign/media/Introducao/completo_comprimido.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcxZDIzMGViLWQ1NTUtNDA3MC1hZTc4LTI3NTA0ZjRjN2U4NSJ9.eyJ1cmwiOiJtZWRpYS9JbnRyb2R1Y2FvL2NvbXBsZXRvX2NvbXByaW1pZG8ubXA0IiwiaWF0IjoxNzQ4NDkxMTY5LCJleHAiOjE3ODAwMjcxNjl9.c5T6Tbz_OOUhLk4vD_NlMBde5BFWmbi7DxXvSjFyRyo";
+  const [videoSource, setVideoSource] = useState<string>("");
+
+  const carregarOnboarding = async () => {
+    try {
+      const onboarding = await buscarOnboarding();
+      if (onboarding.length > 0) {
+        setVideoSource(onboarding[0].url);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar vídeo de onboarding:", error);
+    }
+  };
 
   const player = useVideoPlayer (videoSource, player => {
         player.loop = false;
@@ -43,12 +55,23 @@ const OnBoarding = () => {
     }
   };
 
+  useEffect(() => {
+    carregarOnboarding();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.contentWrapper}>
         <View style={styles.contentContainer}>
           <View style={styles.videoFrame}>
-            <VideoView style={styles.video} player={player} allowsFullscreen />
+            <VideoView 
+            style={styles.video} 
+            player={player} 
+            allowsFullscreen={false}
+            allowsPictureInPicture={false}
+            nativeControls={false}
+            pointerEvents="none"
+            contentFit="contain" />
           </View>
           <View style={styles.controlsContainer}>
             <TouchableOpacity onPress={handleRestart} style={styles.iconButton}>

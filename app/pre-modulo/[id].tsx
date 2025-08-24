@@ -109,11 +109,14 @@ const PreModulo = () => {
           <View style={styles.contentWrapper}>
             <View style={styles.contentContainer}>
               <View style={styles.videoFrame}>
-                <VideoView 
-                  style={styles.video} 
-                  player={player} 
-                  allowsFullscreen
-                />
+              <VideoView 
+                style={styles.video} 
+                player={player} 
+                allowsFullscreen={false}
+                allowsPictureInPicture={false}
+                nativeControls={false}
+                pointerEvents="none"
+                contentFit="contain" />
               </View>
               <View style={styles.controlsContainer}>
                 <TouchableOpacity onPress={handleRestart} style={styles.iconButton}>

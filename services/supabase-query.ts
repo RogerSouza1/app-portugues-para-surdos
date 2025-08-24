@@ -1,7 +1,6 @@
 import { supabase } from '../lib/supabase';
 import type { Exercicio, ExercicioAlternativa, Media, Modulo } from '../types';
 
-// Função helper para tratamento de erros
 const handleSupabaseError = (error: any, context: string) => {
   console.error(`Erro em ${context}:`, error);
   throw new Error(`Falha ao ${context}: ${error.message}`);
@@ -252,6 +251,21 @@ export async function buscarExercicioPalavras(exercicio_uuid: string) {
     return data || [];
   } catch (error) {
     handleSupabaseError(error, 'buscar palavras do exercício');
+    return [];
+  }
+}
+
+export async function buscarOnboarding() {
+  try {
+    const { data, error } = await supabase
+      .from("media")
+      .select("*")
+      .eq("tipo", "video_onboarding")
+    
+    if (error) handleSupabaseError(error, 'buscar onboarding');
+    return data || [];
+  } catch (error) {
+    handleSupabaseError(error, 'buscar onboarding');
     return [];
   }
 }
