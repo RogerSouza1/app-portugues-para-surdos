@@ -41,6 +41,9 @@ const OnBoarding = () => {
     isPlaying: player.playing,
   });
 
+  const [playerError, setPlayerError] = useState<any>(null);
+  const [lastNativeEvent, setLastNativeEvent] = useState<number | null>(null);
+
   const handleNext = () => {
     router.replace({ pathname: "/tabs/modulos" });
   };
@@ -88,6 +91,7 @@ const OnBoarding = () => {
                 color="#013974"
               />
             </TouchableOpacity>
+            {/* forcePlay removed */}
           </View>
         </View>
       </View>

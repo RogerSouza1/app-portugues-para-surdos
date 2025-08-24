@@ -64,6 +64,56 @@ const PreModulo = () => {
 
   const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
 
+  const [playerError, setPlayerError] = useState<any>(null);
+  const [lastNativeEvent, setLastNativeEvent] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!player) return;
+    const anyPlayer = player as any;
+
+    const onError = (e: any) => {
+      console.warn("player event error (pre-modulo):", e);
+      setPlayerError(e);
+    };
+
+    const onPlayingChange = (ev: any) => {
+      console.warn("player event playingChange (pre-modulo):", ev);
+      setLastNativeEvent(Date.now());
+    };
+
+    const unsubscribers: Array<() => void | undefined> = [];
+    try {
+      if (typeof anyPlayer.addEventListener === "function") {
+        const subErr = anyPlayer.addEventListener("error", onError);
+        const subPlay = anyPlayer.addEventListener("playingChange", onPlayingChange);
+        unsubscribers.push(() => subErr?.remove?.());
+        unsubscribers.push(() => subPlay?.remove?.());
+      }
+    } catch {}
+
+    try {
+      if (typeof anyPlayer.addListener === "function") {
+        const subErr = anyPlayer.addListener("error", onError);
+        const subPlay = anyPlayer.addListener("playingChange", onPlayingChange);
+        unsubscribers.push(() => subErr?.remove?.());
+        unsubscribers.push(() => subPlay?.remove?.());
+      }
+    } catch {}
+
+    return () => unsubscribers.forEach((u) => { try { u?.(); } catch {} });
+  }, [player]);
+
+  const forcePlay = () => {
+    try {
+      if (!player) return;
+      if (player.currentTime >= player.duration) player.currentTime = 0;
+      player.play();
+      console.warn("forcePlay invoked (pre-modulo)");
+    } catch (e) {
+      // ignored
+    }
+  };
+
   const handleRestart = () => {
     if (player) {
       try {
@@ -148,6 +198,7 @@ const PreModulo = () => {
                     color="#013974"
                   />
                 </TouchableOpacity>
+                {/* forcePlay removed */}
               </View>
             </View>
           </View>

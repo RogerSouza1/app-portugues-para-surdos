@@ -88,6 +88,56 @@ const Exercicios = () => {
 
   const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
 
+  const [playerError, setPlayerError] = useState<any>(null);
+  const [lastNativeEvent, setLastNativeEvent] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!player) return;
+    const anyPlayer = player as any;
+
+    const onError = (e: any) => {
+      console.warn("player event error (exercicios):", e);
+      setPlayerError(e);
+    };
+
+    const onPlayingChange = (ev: any) => {
+      console.warn("player event playingChange (exercicios):", ev);
+      setLastNativeEvent(Date.now());
+    };
+
+    const unsubscribers: Array<() => void | undefined> = [];
+    try {
+      if (typeof anyPlayer.addEventListener === "function") {
+        const subErr = anyPlayer.addEventListener("error", onError);
+        const subPlay = anyPlayer.addEventListener("playingChange", onPlayingChange);
+        unsubscribers.push(() => subErr?.remove?.());
+        unsubscribers.push(() => subPlay?.remove?.());
+      }
+    } catch {}
+
+    try {
+      if (typeof anyPlayer.addListener === "function") {
+        const subErr = anyPlayer.addListener("error", onError);
+        const subPlay = anyPlayer.addListener("playingChange", onPlayingChange);
+        unsubscribers.push(() => subErr?.remove?.());
+        unsubscribers.push(() => subPlay?.remove?.());
+      }
+    } catch {}
+
+    return () => unsubscribers.forEach((u) => { try { u?.(); } catch {} });
+  }, [player]);
+
+  const forcePlay = () => {
+    try {
+      if (!player) return;
+      if (player.currentTime >= player.duration) player.currentTime = 0;
+      player.play();
+      console.warn("forcePlay invoked (exercicios)");
+    } catch (e) {
+      // ignored
+    }
+  };
+
   const handleRestart = () => {
     if (player) {
       try {
@@ -197,6 +247,7 @@ const Exercicios = () => {
               <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
                 <Ionicons name={isPlaying ? "pause" : "play"} size={28} color="#FFF" />
               </TouchableOpacity>
+              {/* forcePlay removed */}
             </View>
             </View>
            

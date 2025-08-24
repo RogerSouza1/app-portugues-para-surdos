@@ -24,7 +24,7 @@ const { width, height } = Dimensions.get("window");
 const PreExercicio = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [media, setMedia] = useState<any[]>([]);
-  const [videoSource, setVideoSource] = useState<string | null>(null);
+  const [videoSource, setVideoSource] = useState<string>("");
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -72,6 +72,85 @@ const PreExercicio = () => {
     isPlaying: player.playing,
   });
 
+  // Diagnostic: log player state when source or player changes
+  useEffect(() => {
+    if (!player) return;
+    // no-op: diagnostics removed
+  }, [player, videoSource]);
+
+  // Try to subscribe to player events (safe, non-breaking) to detect errors and native control interactions
+  const [playerError, setPlayerError] = useState<any>(null);
+  const [lastNativeEvent, setLastNativeEvent] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!player) return;
+    const anyPlayer = player as any;
+
+    const onError = (e: any) => {
+      setPlayerError(e);
+    };
+
+    const onPlayingChange = (ev: any) => {
+      setLastNativeEvent(Date.now());
+    };
+
+  const unsubscribers: Array<() => void | undefined> = [];
+
+    try {
+      if (typeof anyPlayer.addEventListener === "function") {
+        const subErr = anyPlayer.addEventListener("error", onError);
+        const subPlay = anyPlayer.addEventListener("playingChange", onPlayingChange);
+        unsubscribers.push(() => subErr?.remove?.());
+        unsubscribers.push(() => subPlay?.remove?.());
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    try {
+      if (typeof anyPlayer.addListener === "function") {
+        const subErr = anyPlayer.addListener("error", onError);
+        const subPlay = anyPlayer.addListener("playingChange", onPlayingChange);
+        unsubscribers.push(() => subErr?.remove?.());
+        unsubscribers.push(() => subPlay?.remove?.());
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return () => {
+      unsubscribers.forEach((u) => {
+        try {
+          u?.();
+        } catch {}
+      });
+    };
+  }, [player]);
+
+  // forcePlay removed per request
+
+  // when the carousel index changes, update videoSource if needed and pause player for non-active slides
+  useEffect(() => {
+    const current = media[currentIndex];
+    try {
+      if (current?.tipo === 'video_libras') {
+        if (videoSource !== current.url) {
+          setVideoSource(current.url);
+        }
+      } else {
+        // not a video slide => pause player
+        if (player) {
+          try {
+            player.pause();
+            player.currentTime = 0;
+          } catch {}
+        }
+      }
+    } catch (e) {
+      // ignored
+    }
+  }, [currentIndex, media]);
+
   const handleNavigateToExercicios = () => {
     player.pause();
 
@@ -87,8 +166,8 @@ const PreExercicio = () => {
         player.currentTime = 0;
         player.play();
       }
-    } catch (error) {
-      console.warn("Erro ao reiniciar vídeo:", error);
+    } catch (_) {
+      // ignored
     }
   };
 
@@ -103,8 +182,8 @@ const PreExercicio = () => {
           }
           player.play();
         }
-      } catch (error) {
-        console.warn("Erro ao controlar reprodução:", error);
+      } catch (_) {
+        // ignored
       }
     }
   };
@@ -125,22 +204,29 @@ const PreExercicio = () => {
       return (
         <View style={styles.card}>
           <View style={styles.contentContainer}>
-            <VideoView
-              style={styles.video}
-              player={player}
-              allowsFullscreen={false}
-              allowsPictureInPicture={false}
-              nativeControls={Platform.OS === 'android' ? true : false}
-              contentFit="contain"
-            />
+            {index === currentIndex ? (
+              <VideoView
+                style={styles.video}
+                player={player}
+                allowsFullscreen={false}
+                allowsPictureInPicture={false}
+                nativeControls={Platform.OS === 'android' ? true : false}
+                contentFit="contain"
+              />
+            ) : (
+              <View style={[styles.video, { backgroundColor: '#000' }]} />
+            )}
           </View>
           <View style={styles.controlsContainer}>
             <TouchableOpacity onPress={handleRestart} style={styles.controlButton}>
               <Ionicons name="refresh" size={28} color="#FFF" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
-              <Ionicons name={isPlaying ? "pause" : "play"} size={28} color="#FFF" />
-            </TouchableOpacity>
+            {Platform.OS !== 'android' && (
+              <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
+                <Ionicons name={isPlaying ? "pause" : "play"} size={28} color="#FFF" />
+              </TouchableOpacity>
+            )}
+            {/* forcePlay button removed */}
           </View>
         </View>
       );

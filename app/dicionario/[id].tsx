@@ -94,6 +94,45 @@ const DicionarioDetalhes = () => {
     isPlaying: player.playing,
   });
 
+  const [playerError, setPlayerError] = useState<any>(null);
+  const [lastNativeEvent, setLastNativeEvent] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!player) return;
+    const anyPlayer = player as any;
+
+    const onError = (e: any) => {
+      setPlayerError(e);
+    };
+
+    const onPlayingChange = (ev: any) => {
+      setLastNativeEvent(Date.now());
+    };
+
+    const unsubscribers: Array<() => void | undefined> = [];
+    try {
+      if (typeof anyPlayer.addEventListener === "function") {
+        const subErr = anyPlayer.addEventListener("error", onError);
+        const subPlay = anyPlayer.addEventListener("playingChange", onPlayingChange);
+        unsubscribers.push(() => subErr?.remove?.());
+        unsubscribers.push(() => subPlay?.remove?.());
+      }
+    } catch {}
+
+    try {
+      if (typeof anyPlayer.addListener === "function") {
+        const subErr = anyPlayer.addListener("error", onError);
+        const subPlay = anyPlayer.addListener("playingChange", onPlayingChange);
+        unsubscribers.push(() => subErr?.remove?.());
+        unsubscribers.push(() => subPlay?.remove?.());
+      }
+    } catch {}
+
+    return () => unsubscribers.forEach((u) => { try { u?.(); } catch {} });
+  }, [player]);
+
+  // forcePlay removed
+
   const handleRestart = () => {
     if (player) {
       try {
@@ -131,14 +170,18 @@ const DicionarioDetalhes = () => {
       return (
         <View key={index} style={styles.mediaCard}>
           <View style={styles.videoContainer}>
-            <VideoView
-              style={styles.video}
-              player={player}
-              allowsFullscreen={false}
-              allowsPictureInPicture={false}
-              nativeControls={Platform.OS === 'android' ? true : false}
-              contentFit="contain"
-            />
+            {index === currentIndex ? (
+              <VideoView
+                style={styles.video}
+                player={player}
+                allowsFullscreen={false}
+                allowsPictureInPicture={false}
+                nativeControls={Platform.OS === 'android' ? true : false}
+                contentFit="contain"
+              />
+            ) : (
+              <View style={[styles.video, { backgroundColor: '#000' }]} />
+            )}
           </View>
           <View style={styles.controlsContainer}>
             <TouchableOpacity onPress={handleRestart} style={styles.controlButton}>
@@ -147,6 +190,7 @@ const DicionarioDetalhes = () => {
             <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
               <Ionicons name={isPlaying ? "pause" : "play"} size={28} color="#FFF" />
             </TouchableOpacity>
+            {/* forcePlay removed */}
           </View>
         </View>
       );
