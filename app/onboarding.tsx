@@ -2,16 +2,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useRouter } from "expo-router";
 import { VideoView, useVideoPlayer } from "expo-video";
+import { useEffect, useState } from "react";
 import {
   Dimensions,
+  Platform,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import NextButton from "../components/NextButton";
-import {buscarOnboarding} from "../services/supabase-query";
-import { use, useEffect, useState } from "react";
+import { buscarOnboarding } from "../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");
 
@@ -64,14 +65,14 @@ const OnBoarding = () => {
       <View style={styles.contentWrapper}>
         <View style={styles.contentContainer}>
           <View style={styles.videoFrame}>
-            <VideoView 
-            style={styles.video} 
-            player={player} 
-            allowsFullscreen={false}
-            allowsPictureInPicture={false}
-            nativeControls={false}
-            pointerEvents="none"
-            contentFit="contain" />
+            <VideoView
+              style={styles.video}
+              player={player}
+              allowsFullscreen={false}
+              allowsPictureInPicture={false}
+              nativeControls={Platform.OS === 'android' ? true : false}
+              contentFit="contain"
+            />
           </View>
           <View style={styles.controlsContainer}>
             <TouchableOpacity onPress={handleRestart} style={styles.iconButton}>

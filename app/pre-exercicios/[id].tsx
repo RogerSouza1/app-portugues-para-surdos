@@ -7,6 +7,7 @@ import {
   Animated,
   Dimensions,
   Image,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -129,8 +130,7 @@ const PreExercicio = () => {
               player={player}
               allowsFullscreen={false}
               allowsPictureInPicture={false}
-              nativeControls={false}
-              pointerEvents="none"
+              nativeControls={Platform.OS === 'android' ? true : false}
               contentFit="contain"
             />
           </View>

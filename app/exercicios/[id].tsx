@@ -5,16 +5,17 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { VideoView, useVideoPlayer} from 'expo-video';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   Vibration,
-  View
+  View,
 } from "react-native";
 import ConfettiCannon from "react-native-confetti-cannon";
 import {
@@ -186,8 +187,7 @@ const Exercicios = () => {
                 player={player}
                 allowsFullscreen={false}
                 allowsPictureInPicture={false}
-                nativeControls={false}
-                pointerEvents="none"
+                nativeControls={Platform.OS === 'android' ? true : false}
                 contentFit="contain"
               />
                <View style={styles.controlsContainer}>

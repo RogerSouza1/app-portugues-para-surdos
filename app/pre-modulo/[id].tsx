@@ -5,14 +5,15 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Dimensions,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import NextButton from "../../components/NextButton";
 import { buscarVideoModuloPorId } from "../../services/supabase-query";
@@ -109,14 +110,14 @@ const PreModulo = () => {
           <View style={styles.contentWrapper}>
             <View style={styles.contentContainer}>
               <View style={styles.videoFrame}>
-              <VideoView 
-                style={styles.video} 
-                player={player} 
+              <VideoView
+                style={styles.video}
+                player={player}
                 allowsFullscreen={false}
                 allowsPictureInPicture={false}
-                nativeControls={false}
-                pointerEvents="none"
-                contentFit="contain" />
+                nativeControls={Platform.OS === 'android' ? true : false}
+                contentFit="contain"
+              />
               </View>
               <View style={styles.controlsContainer}>
                 <TouchableOpacity onPress={handleRestart} style={styles.iconButton}>

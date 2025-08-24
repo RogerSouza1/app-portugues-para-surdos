@@ -5,23 +5,24 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { VideoView, useVideoPlayer } from "expo-video";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    Dimensions,
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+  Image,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Bullets from "../../components/Bullets";
 import {
-    buscarAlternativas,
-    buscarExercicioPorId,
-    buscarMidia,
-    buscarVideoExercicioPorId,
+  buscarAlternativas,
+  buscarExercicioPorId,
+  buscarMidia,
+  buscarVideoExercicioPorId,
 } from "../../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");
@@ -135,8 +136,7 @@ const DicionarioDetalhes = () => {
               player={player}
               allowsFullscreen={false}
               allowsPictureInPicture={false}
-              nativeControls={false}
-              pointerEvents="none"
+              nativeControls={Platform.OS === 'android' ? true : false}
               contentFit="contain"
             />
           </View>
