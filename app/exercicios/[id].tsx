@@ -5,7 +5,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { VideoView } from 'expo-video';
+import { VideoView, useVideoPlayer} from 'expo-video';
 import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -17,7 +17,6 @@ import {
   View
 } from "react-native";
 import ConfettiCannon from "react-native-confetti-cannon";
-import { useSafeVideoPlayer } from "../../hooks/useSafeVideoPlayer";
 import {
   buscarAlternativas,
   buscarExercicioPorId,
@@ -81,10 +80,9 @@ const Exercicios = () => {
     if (id) carregarExercicio();
   }, [id]);
 
-  const { player, safePause, safePlay, safeRelease } = useSafeVideoPlayer(mediaUrl, player => {
-    player.loop = false;
-    player.muted = false;
-    player.play();
+  const player = useVideoPlayer (mediaUrl, player => {
+      player.loop = false;
+      player.muted = false;
   });
 
   const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
@@ -93,7 +91,7 @@ const Exercicios = () => {
     if (player) {
       try {
         player.currentTime = 0;
-        safePlay();
+        player.play();
       } catch (error) {
         console.warn("Erro ao reiniciar vídeo:", error);
       }
@@ -104,12 +102,12 @@ const Exercicios = () => {
     if (player) {
       try {
         if (isPlaying) {
-          safePause();
+          player.pause();
         } else {
           if (player.currentTime >= player.duration) {
             player.currentTime = 0;
           }
-          safePlay();
+          player.play();
         }
       } catch (error) {
         console.warn("Erro ao controlar reprodução:", error);
@@ -140,13 +138,6 @@ const Exercicios = () => {
       }, 600);
     }
   };
-
-  // Cleanup do player
-  useEffect(() => {
-    return () => {
-      safeRelease();
-    };
-  }, [safeRelease]);
 
   const corBotao = (opcao: string) => {
     if (!respondido) {

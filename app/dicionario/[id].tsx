@@ -2,7 +2,7 @@ import LoadingError from "@/components/LoadingError";
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { VideoView } from "expo-video";
+import { VideoView, useVideoPlayer } from "expo-video";
 import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
@@ -17,7 +17,6 @@ import {
     View
 } from "react-native";
 import Bullets from "../../components/Bullets";
-import { useSafeVideoPlayer } from "../../hooks/useSafeVideoPlayer";
 import {
     buscarAlternativas,
     buscarExercicioPorId,
@@ -49,11 +48,9 @@ const DicionarioDetalhes = () => {
         setLoading(true);
         setError(false);
 
-        // Buscar dados do exercício
         const data = await buscarExercicioPorId(id);
         setExercicio(data);
 
-        // Buscar vídeo do exercício (método original)
         const mediaData = await buscarVideoExercicioPorId(id);
         setMediaUrl(
           mediaData.length > 0
@@ -61,24 +58,19 @@ const DicionarioDetalhes = () => {
             : "https://cdn-icons-png.flaticon.com/512/3273/3273587.png"
         );
 
-        // Buscar todas as mídias (imagens e vídeos)
         const midiaData = await buscarMidia(id);
 
-        // Ordena por ordem e prepara array de mídia
         midiaData.sort((a, b) => a.ordem - b.ordem);
         setMedia(midiaData);
 
-        // Se há vídeo na mídia, usa ele como fonte principal
         const videoLibras = midiaData.find((item) => item.tipo === "video_libras");
         if (videoLibras) {
           setMediaUrl(videoLibras.url);
         }
 
-        // Buscar alternativas
         const dataAlternativas = await buscarAlternativas(id);
         setAlternativas(dataAlternativas);
 
-        // Encontrar a resposta correta
         const correta = dataAlternativas.find((item: any) => item.is_correta);
         setPalavraCorreta(correta?.alternativa?.opcao?.trim() ?? "");
       } catch (e) {
@@ -92,9 +84,9 @@ const DicionarioDetalhes = () => {
     if (id) carregarDetalhes();
   }, [id]);
 
-  const { player, safePause, safePlay, safeRelease } = useSafeVideoPlayer(mediaUrl || "", (player) => {
-    player.loop = false;
-    player.muted = false;
+  const player = useVideoPlayer (mediaUrl, player => {
+        player.loop = false;
+        player.muted = false;
   });
 
   const { isPlaying } = useEvent(player, "playingChange", {
@@ -105,7 +97,7 @@ const DicionarioDetalhes = () => {
     if (player) {
       try {
         player.currentTime = 0;
-        safePlay();
+        player.play();
       } catch (error) {
         console.warn("Erro ao reiniciar vídeo:", error);
       }
@@ -116,12 +108,12 @@ const DicionarioDetalhes = () => {
     if (player) {
       try {
         if (isPlaying) {
-          safePause();
+          player.pause();
         } else {
           if (player.currentTime >= player.duration) {
             player.currentTime = 0;
           }
-          safePlay();
+          player.play();
         }
       } catch (error) {
         console.warn("Erro ao controlar reprodução:", error);
@@ -132,13 +124,6 @@ const DicionarioDetalhes = () => {
   const goBack = () => {
     router.back();
   };
-
-  // Cleanup do player
-  useEffect(() => {
-    return () => {
-      safeRelease();
-    };
-  }, [safeRelease]);
 
   const renderMediaItem = (item: any, index: number) => {
     if (item.tipo === "video_libras") {

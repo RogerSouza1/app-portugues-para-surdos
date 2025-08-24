@@ -8,8 +8,6 @@ export const options = {
   headerShown: false,
 };
 
-
-
 const Index = () => {
   const router = useRouter();
 

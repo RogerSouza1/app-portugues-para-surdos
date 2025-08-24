@@ -16,7 +16,6 @@ import {
 } from "react-native";
 import Bullets from "../../components/Bullets";
 import NextButton from "../../components/NextButton";
-import { useSafeVideoPlayer } from "../../hooks/useSafeVideoPlayer";
 import { buscarMidia } from "../../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");

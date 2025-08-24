@@ -2,7 +2,7 @@ import LoadingError from "@/components/LoadingError";
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { VideoView } from 'expo-video';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -15,7 +15,6 @@ import {
     View
 } from "react-native";
 import NextButton from "../../components/NextButton";
-import { useSafeVideoPlayer } from "../../hooks/useSafeVideoPlayer";
 import { buscarVideoModuloPorId } from "../../services/supabase-query";
 
 const { width, height } = Dimensions.get("window");
@@ -57,10 +56,9 @@ const PreModulo = () => {
     if (id) carregarVideoModulo();
   }, [id]);
 
-  const { player, safePause, safePlay, safeRelease } = useSafeVideoPlayer(mediaUrl, player => {
-    player.loop = false;
-    player.muted = false;
-    player.play();
+  const player = useVideoPlayer (mediaUrl, player => {
+        player.loop = false;
+        player.muted = false;
   });
 
   const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
@@ -69,7 +67,7 @@ const PreModulo = () => {
     if (player) {
       try {
         player.currentTime = 0;
-        safePlay();
+        player.play();
       } catch (error) {
         console.warn("Erro ao reiniciar vídeo:", error);
       }
@@ -86,12 +84,6 @@ const PreModulo = () => {
   const goBack = () => {
     router.back();
   };
-
-  useEffect(() => {
-    return () => {
-      safeRelease();
-    };
-  }, [safeRelease]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -132,12 +124,12 @@ const PreModulo = () => {
                     if (player) {
                       try {
                         if (isPlaying) {
-                          safePause();
+                          player.pause();
                         } else {
                           if (player.currentTime >= player.duration) {
                             player.currentTime = 0;
                           }
-                          safePlay();
+                          player.play();
                         }
                       } catch (error) {
                         console.warn("Erro ao controlar reprodução:", error);

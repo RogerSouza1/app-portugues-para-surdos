@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useRouter } from "expo-router";
-import { VideoView } from "expo-video";
+import { VideoView, useVideoPlayer } from "expo-video";
 import {
   Dimensions,
   SafeAreaView,
@@ -10,7 +10,6 @@ import {
   View
 } from "react-native";
 import NextButton from "../components/NextButton";
-import { useSafeVideoPlayer } from "../hooks/useSafeVideoPlayer";
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,9 +19,9 @@ const OnBoarding = () => {
   const videoSource =
     "https://voxbpjzqmefmnnbjqqgm.supabase.co/storage/v1/object/sign/media/Introducao/completo_comprimido.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcxZDIzMGViLWQ1NTUtNDA3MC1hZTc4LTI3NTA0ZjRjN2U4NSJ9.eyJ1cmwiOiJtZWRpYS9JbnRyb2R1Y2FvL2NvbXBsZXRvX2NvbXByaW1pZG8ubXA0IiwiaWF0IjoxNzQ4NDkxMTY5LCJleHAiOjE3ODAwMjcxNjl9.c5T6Tbz_OOUhLk4vD_NlMBde5BFWmbi7DxXvSjFyRyo";
 
-  const { player, safePause, safePlay } = useSafeVideoPlayer(videoSource, (player) => {
-    player.loop = true;
-    player.play();
+  const player = useVideoPlayer (videoSource, player => {
+        player.loop = false;
+        player.muted = false;
   });
 
   const { isPlaying } = useEvent(player, "playingChange", {
@@ -37,7 +36,7 @@ const OnBoarding = () => {
     if (player) {
       try {
         player.currentTime = 0;
-        safePlay();
+        player.play();
       } catch (error) {
         console.warn("Erro ao reiniciar vídeo:", error);
       }
@@ -56,7 +55,7 @@ const OnBoarding = () => {
               <Ionicons name="refresh" size={32} color="#013974" />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => (isPlaying ? safePause() : safePlay())}
+              onPress={() => (isPlaying ? player.pause() : player.play())}
               style={styles.iconButton}
             >
               <Ionicons
