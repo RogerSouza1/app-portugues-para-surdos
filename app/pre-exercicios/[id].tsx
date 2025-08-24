@@ -1,19 +1,15 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { VideoView, useVideoPlayer } from "expo-video";
 import { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  Image,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    Dimensions,
+    Image,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 import Bullets from "../../components/Bullets";
 import NextButton from "../../components/NextButton";
@@ -62,21 +58,10 @@ const PreExercicio = () => {
     }
   }, [id]);
 
-    const player = useVideoPlayer (videoSource, player => {
-      player.loop = false;
-      player.muted = false;
-    }
-  );
-
-  const { isPlaying } = useEvent(player, "playingChange", {
-    isPlaying: player.playing,
+  const player = useVideoPlayer(videoSource, player => {
+    player.loop = false;
+    player.muted = false;
   });
-
-  // Diagnostic: log player state when source or player changes
-  useEffect(() => {
-    if (!player) return;
-    // no-op: diagnostics removed
-  }, [player, videoSource]);
 
   // Try to subscribe to player events (safe, non-breaking) to detect errors and native control interactions
   const [playerError, setPlayerError] = useState<any>(null);
@@ -160,34 +145,6 @@ const PreExercicio = () => {
     });
   };
 
-  const handleRestart = () => {
-    try {
-      if (player) {
-        player.currentTime = 0;
-        player.play();
-      }
-    } catch (_) {
-      // ignored
-    }
-  };
-
-  const handlePlayPause = () => {
-    if (player) {
-      try {
-        if (isPlaying) {
-          player.pause();
-        } else {
-          if (player.currentTime >= player.duration) {
-            player.currentTime = 0;
-          }
-          player.play();
-        }
-      } catch (_) {
-        // ignored
-      }
-    }
-  };
-
   const handleNext = () => {
     if (currentIndex < media.length - 1) {
       scrollViewRef.current?.scrollTo({
@@ -210,23 +167,12 @@ const PreExercicio = () => {
                 player={player}
                 allowsFullscreen={false}
                 allowsPictureInPicture={false}
-                nativeControls={Platform.OS === 'android' ? true : false}
+                nativeControls={true}
                 contentFit="contain"
               />
             ) : (
               <View style={[styles.video, { backgroundColor: '#000' }]} />
             )}
-          </View>
-          <View style={styles.controlsContainer}>
-            <TouchableOpacity onPress={handleRestart} style={styles.controlButton}>
-              <Ionicons name="refresh" size={28} color="#FFF" />
-            </TouchableOpacity>
-            {Platform.OS !== 'android' && (
-              <TouchableOpacity onPress={handlePlayPause} style={styles.controlButton}>
-                <Ionicons name={isPlaying ? "pause" : "play"} size={28} color="#FFF" />
-              </TouchableOpacity>
-            )}
-            {/* forcePlay button removed */}
           </View>
         </View>
       );

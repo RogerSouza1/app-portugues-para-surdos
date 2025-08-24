@@ -1,18 +1,14 @@
 import LoadingError from "@/components/LoadingError";
-import { Ionicons } from "@expo/vector-icons";
-import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  Platform,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import NextButton from "../../components/NextButton";
@@ -57,73 +53,10 @@ const PreModulo = () => {
     if (id) carregarVideoModulo();
   }, [id]);
 
-  const player = useVideoPlayer (mediaUrl, player => {
-        player.loop = false;
-        player.muted = false;
+  const player = useVideoPlayer(mediaUrl, player => {
+    player.loop = false;
+    player.muted = false;
   });
-
-  const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
-
-  const [playerError, setPlayerError] = useState<any>(null);
-  const [lastNativeEvent, setLastNativeEvent] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!player) return;
-    const anyPlayer = player as any;
-
-    const onError = (e: any) => {
-      console.warn("player event error (pre-modulo):", e);
-      setPlayerError(e);
-    };
-
-    const onPlayingChange = (ev: any) => {
-      console.warn("player event playingChange (pre-modulo):", ev);
-      setLastNativeEvent(Date.now());
-    };
-
-    const unsubscribers: Array<() => void | undefined> = [];
-    try {
-      if (typeof anyPlayer.addEventListener === "function") {
-        const subErr = anyPlayer.addEventListener("error", onError);
-        const subPlay = anyPlayer.addEventListener("playingChange", onPlayingChange);
-        unsubscribers.push(() => subErr?.remove?.());
-        unsubscribers.push(() => subPlay?.remove?.());
-      }
-    } catch {}
-
-    try {
-      if (typeof anyPlayer.addListener === "function") {
-        const subErr = anyPlayer.addListener("error", onError);
-        const subPlay = anyPlayer.addListener("playingChange", onPlayingChange);
-        unsubscribers.push(() => subErr?.remove?.());
-        unsubscribers.push(() => subPlay?.remove?.());
-      }
-    } catch {}
-
-    return () => unsubscribers.forEach((u) => { try { u?.(); } catch {} });
-  }, [player]);
-
-  const forcePlay = () => {
-    try {
-      if (!player) return;
-      if (player.currentTime >= player.duration) player.currentTime = 0;
-      player.play();
-      console.warn("forcePlay invoked (pre-modulo)");
-    } catch (e) {
-      // ignored
-    }
-  };
-
-  const handleRestart = () => {
-    if (player) {
-      try {
-        player.currentTime = 0;
-        player.play();
-      } catch (error) {
-        console.warn("Erro ao reiniciar vídeo:", error);
-      }
-    }
-  };
 
   const goToNiveis = () => {
     router.replace({
@@ -165,40 +98,9 @@ const PreModulo = () => {
                 player={player}
                 allowsFullscreen={false}
                 allowsPictureInPicture={false}
-                nativeControls={Platform.OS === 'android' ? true : false}
+                nativeControls={true}
                 contentFit="contain"
               />
-              </View>
-              <View style={styles.controlsContainer}>
-                <TouchableOpacity onPress={handleRestart} style={styles.iconButton}>
-                  <Ionicons name="refresh" size={32} color="#013974" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (player) {
-                      try {
-                        if (isPlaying) {
-                          player.pause();
-                        } else {
-                          if (player.currentTime >= player.duration) {
-                            player.currentTime = 0;
-                          }
-                          player.play();
-                        }
-                      } catch (error) {
-                        console.warn("Erro ao controlar reprodução:", error);
-                      }
-                    }
-                  }}
-                  style={styles.iconButton}
-                >
-                  <Ionicons
-                    name={isPlaying ? "pause" : "play"}
-                    size={32}
-                    color="#013974"
-                  />
-                </TouchableOpacity>
-                {/* forcePlay removed */}
               </View>
             </View>
           </View>

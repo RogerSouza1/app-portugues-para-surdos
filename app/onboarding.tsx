@@ -1,14 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useEvent } from "expo";
 import { useRouter } from "expo-router";
 import { VideoView, useVideoPlayer } from "expo-video";
 import { useEffect, useState } from "react";
 import {
   Dimensions,
-  Platform,
   SafeAreaView,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from "react-native";
 import NextButton from "../components/NextButton";
@@ -32,31 +28,13 @@ const OnBoarding = () => {
     }
   };
 
-  const player = useVideoPlayer (videoSource, player => {
-        player.loop = false;
-        player.muted = false;
+  const player = useVideoPlayer(videoSource, player => {
+    player.loop = false;
+    player.muted = false;
   });
-
-  const { isPlaying } = useEvent(player, "playingChange", {
-    isPlaying: player.playing,
-  });
-
-  const [playerError, setPlayerError] = useState<any>(null);
-  const [lastNativeEvent, setLastNativeEvent] = useState<number | null>(null);
 
   const handleNext = () => {
     router.replace({ pathname: "/tabs/modulos" });
-  };
-
-  const handleRestart = () => {
-    if (player) {
-      try {
-        player.currentTime = 0;
-        player.play();
-      } catch (error) {
-        console.warn("Erro ao reiniciar vídeo:", error);
-      }
-    }
   };
 
   useEffect(() => {
@@ -73,25 +51,9 @@ const OnBoarding = () => {
               player={player}
               allowsFullscreen={false}
               allowsPictureInPicture={false}
-              nativeControls={Platform.OS === 'android' ? true : false}
+              nativeControls={true}
               contentFit="contain"
             />
-          </View>
-          <View style={styles.controlsContainer}>
-            <TouchableOpacity onPress={handleRestart} style={styles.iconButton}>
-              <Ionicons name="refresh" size={32} color="#013974" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => (isPlaying ? player.pause() : player.play())}
-              style={styles.iconButton}
-            >
-              <Ionicons
-                name={isPlaying ? "pause" : "play"}
-                size={32}
-                color="#013974"
-              />
-            </TouchableOpacity>
-            {/* forcePlay removed */}
           </View>
         </View>
       </View>
@@ -133,20 +95,6 @@ const styles = StyleSheet.create({
     width: "95%",
     height: "97%",
     borderRadius: 20,
-  },
-  controlsContainer: {
-    marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    width: "60%",
-  },
-  iconButton: {
-    padding: 10,
-    borderRadius: 50,
-    backgroundColor: "#F7F9FA",
-    elevation: 2,
-    marginHorizontal: 10,
   },
 });
 
