@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEvent } from "expo";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { VideoView } from "expo-video";
+import { VideoView, useVideoPlayer } from "expo-video";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -62,17 +62,18 @@ const PreExercicio = () => {
     }
   }, [id]);
 
-  const { player, safePause, safePlay, safeRelease } = useSafeVideoPlayer(videoSource || "", (player) => {
-    player.loop = false;
-    player.muted = false;
-  });
+    const player = useVideoPlayer (videoSource, player => {
+      player.loop = false;
+      player.muted = false;
+    }
+  );
 
   const { isPlaying } = useEvent(player, "playingChange", {
     isPlaying: player.playing,
   });
 
   const handleNavigateToExercicios = () => {
-    safePause();
+    player.pause();
 
     router.replace({
       pathname: "/exercicios/[id]",
@@ -84,7 +85,7 @@ const PreExercicio = () => {
     try {
       if (player) {
         player.currentTime = 0;
-        safePlay();
+        player.play();
       }
     } catch (error) {
       console.warn("Erro ao reiniciar vídeo:", error);
@@ -95,12 +96,12 @@ const PreExercicio = () => {
     if (player) {
       try {
         if (isPlaying) {
-          safePause();
+          player.pause();
         } else {
           if (player.currentTime >= player.duration) {
             player.currentTime = 0;
           }
-          safePlay();
+          player.play();
         }
       } catch (error) {
         console.warn("Erro ao controlar reprodução:", error);
@@ -118,13 +119,6 @@ const PreExercicio = () => {
       handleNavigateToExercicios();
     }
   };
-
-  // Cleanup do player
-  useEffect(() => {
-    return () => {
-      safeRelease();
-    };
-  }, [safeRelease]);
 
   const renderMediaItem = (item: any, index: number) => {
     if (item.tipo === "video_libras") {
