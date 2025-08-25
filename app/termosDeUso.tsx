@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const TermosDeUso: React.FC = () => {
@@ -10,7 +10,7 @@ const TermosDeUso: React.FC = () => {
         <Text style={styles.dataAtualizacao}>Última atualização: 20 de maio de 2025</Text>
         <Text style={styles.boasVindas}>Bem-vindo(a) ao Entre Línguas!</Text>
         <Text style={styles.paragrafo}>
-          Estes Termos de Uso ("Termos") regem o uso do aplicativo móvel Entre Línguas ("Aplicativo"), 
+          Estes Termos de Uso (&quot;Termos&quot;) regem o uso do aplicativo móvel Entre Línguas (&quot;Aplicativo&quot;), 
           desenvolvido para auxiliar deficientes auditivos com proficiência em Libras no aprendizado da língua 
           portuguesa escrita de forma gamificada. Ao acessar ou utilizar o Aplicativo, você concorda em cumprir 
           e estar vinculado(a) a estes Termos. Se você não concordar com qualquer parte destes Termos, não 
@@ -123,7 +123,7 @@ const TermosDeUso: React.FC = () => {
         <Secao titulo="5. ISENÇÃO DE GARANTIAS">
           <Subsecao>
             <Text style={styles.paragrafo}>
-              O Aplicativo é fornecido "no estado em que se encontra" e "conforme disponível", sem garantias de 
+                O Aplicativo é fornecido &quot;no estado em que se encontra&quot; e &quot;conforme disponível&quot;, sem garantias de 
               qualquer tipo, expressas ou implícitas. O Entre Línguas não garante que o Aplicativo será ininterrupto, 
               livre de erros, seguro ou que atenderá a todas as suas expectativas de aprendizado. O sucesso no 
               aprendizado da língua portuguesa escrita depende do esforço e dedicação individual do usuário.
@@ -186,7 +186,7 @@ const TermosDeUso: React.FC = () => {
         <Text style={styles.paragrafo}>
           A sua privacidade é muito importante para nós do Entre Línguas. Esta Política de Privacidade descreve 
           como coletamos, usamos, armazenamos e protegemos suas informações pessoais ao utilizar nosso aplicativo 
-          móvel ("Aplicativo"). Ao usar o Aplicativo, você concorda com as práticas descritas nesta Política de 
+          móvel (&quot;Aplicativo&quot;). Ao usar o Aplicativo, você concorda com as práticas descritas nesta Política de 
           Privacidade, em conformidade com a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 - LGPD) 
           e demais legislações aplicáveis.
         </Text>
