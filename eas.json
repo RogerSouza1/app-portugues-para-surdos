@@ -3,6 +3,9 @@
     "preview": {
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
       }
     },
     "preview2": {
@@ -16,6 +19,24 @@
     "preview4": {
       "distribution": "internal"
     },
-    "production": {}
+    "production": {
+      "ios": {
+        "distribution": "internal"
+      }
+    },
+    "testflight": {
+      "ios": {
+        "distribution": "internal"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "carladheyslane2@gmail.com",
+        "ascAppId": "6751851772",
+        "appleTeamId": "DGB95U3RG5"
+      }
+    }
   }
 }
