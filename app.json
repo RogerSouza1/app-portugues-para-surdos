@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Português para Surdos",
+    "name": "Entre Linguas",
     "slug": "app-portugues-para-surdos",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -23,7 +23,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cobalto.appportuguesparasurdos"
+      "bundleIdentifier": "com.cobalto.appportuguesparasurdos",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -64,7 +67,7 @@
           ]
         }
       ],
-       "expo-video"
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true

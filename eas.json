@@ -26,12 +26,19 @@
     },
     "testflight": {
       "ios": {
-        "distribution": "internal"
+        "distribution": "store"
       }
     }
   },
   "submit": {
     "production": {
+      "ios": {
+        "appleId": "carladheyslane2@gmail.com",
+        "ascAppId": "6751851772",
+        "appleTeamId": "DGB95U3RG5"
+      }
+    },
+    "testflight": {
       "ios": {
         "appleId": "carladheyslane2@gmail.com",
         "ascAppId": "6751851772",
