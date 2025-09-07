@@ -2,7 +2,7 @@
   "expo": {
     "name": "Entre Linguas",
     "slug": "app-portugues-para-surdos",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon-logo.png",
     "scheme": "appportuguesparasurdos",
@@ -26,7 +26,8 @@
       "bundleIdentifier": "com.cobalto.appportuguesparasurdos",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
