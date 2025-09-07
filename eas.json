@@ -45,14 +45,5 @@
         "appleTeamId": "DGB95U3RG5"
       }
     }
-  },
-  "expo": {
-    "ios": {
-      "infoPlist": {
-        "NSCameraUsageDescription": "Este app precisa acessar a câmera para que você possa tirar fotos de perfil.",
-        "NSPhotoLibraryUsageDescription": "Este app precisa acessar sua biblioteca de fotos para que você possa escolher uma foto de perfil.",
-        "NSPhotoLibraryAddUsageDescription": "Este app precisa salvar fotos na sua biblioteca."
-      }
-    }
   }
 }
